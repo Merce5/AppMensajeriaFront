@@ -1,0 +1,14 @@
+.root {
+    -bg: #ffffff;
+    -surface: #ffffff;
+    -surface-2: #f5f6f8;
+    -text: #111827;
+    -muted: #6b7280;
+    -border: #e5e7eb;
+    -accent: #2563eb;
+    -accent-2: #1d4ed8;
+}
+
+.label {
+    -fx-text-fill: black;
+}

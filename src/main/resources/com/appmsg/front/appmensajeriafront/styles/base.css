@@ -1,0 +1,201 @@
+/* Tipografía + base */
+.root {
+    -fx-font-family: "Inter", "Segoe UI", "SF Pro Display", "Arial";
+    -fx-font-size: 13px;
+}
+
+/* Colores (se sobreescriben en light/dark) */
+.root {
+    -bg: #ffffff;
+    -surface: #ffffff;
+    -surface-2: #f5f6f8;
+    -text: #111827;
+    -muted: #6b7280;
+    -border: #e5e7eb;
+    -accent: #2563eb;
+    -accent-2: #1d4ed8;
+    -danger: #ef4444;
+}
+
+/* Estructura */
+.app-root {
+    -fx-background-color: -bg;
+}
+
+.content-root {
+    -fx-background-color: -bg;
+}
+
+/* Topbar */
+.topbar {
+    -fx-background-color: -surface;
+    -fx-border-color: transparent transparent -border transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.app-title {
+    -fx-text-fill: -text;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+/* Páginas */
+.page {
+    -fx-background-color: -bg;
+}
+
+.page-title {
+    -fx-text-fill: -text;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.section-title {
+    -fx-text-fill: -text;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+/* Texto */
+.label {
+    -fx-text-fill: -text;
+}
+
+.muted {
+    -fx-text-fill: -muted;
+}
+
+/* Card (panel) */
+.card {
+    -fx-background-color: -surface;
+    -fx-border-color: -border;
+    -fx-border-radius: 14px;
+    -fx-background-radius: 14px;
+    -fx-padding: 14px;
+}
+
+/* Inputs */
+.text-field, .combo-box-base {
+    -fx-background-color: -surface-2;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: transparent;
+    -fx-text-fill: -text;
+    -fx-padding: 10px 12px;
+}
+
+.text-field:focused, .combo-box-base:focused {
+    -fx-border-color: -accent;
+    -fx-border-width: 1px;
+}
+
+.combo-box-base .list-cell {
+    -fx-text-fill: -text;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: -surface;
+    -fx-border-color: -border;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+}
+
+/* Botones */
+.button {
+    -fx-cursor: hand;
+}
+
+.primary-button {
+    -fx-background-color: -accent;
+    -fx-text-fill: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 10px 14px;
+    -fx-font-weight: 700;
+}
+
+.primary-button:hover {
+    -fx-background-color: -accent-2;
+}
+
+.secondary-button {
+    -fx-background-color: -surface-2;
+    -fx-text-fill: -text;
+    -fx-background-radius: 12px;
+    -fx-padding: 10px 14px;
+    -fx-font-weight: 600;
+}
+
+.secondary-button:hover {
+    -fx-background-color: derive(-surface-2, -4%);
+}
+
+/* Icon buttons (back, +, etc.) */
+.icon-button {
+    -fx-background-color: -surface-2;
+    -fx-text-fill: -text;
+    -fx-background-radius: 999px;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-font-weight: 700;
+}
+
+.icon-button:hover {
+    -fx-background-color: derive(-surface-2, -6%);
+}
+
+/* Avatar */
+.avatar-button {
+    -fx-background-color: -surface-2;
+    -fx-text-fill: -text;
+    -fx-background-radius: 999px;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-font-weight: 700;
+}
+
+.avatar-button:hover {
+    -fx-background-color: derive(-surface-2, -6%);
+}
+
+/* ===== SWITCH MODERNO (CHECKBOX) ===== */
+
+.check-box.switch {
+    -fx-padding: 0;
+}
+
+.check-box.switch .box {
+    -fx-background-color: -surface-2;
+    -fx-border-color: -border;
+    -fx-border-radius: 999px;
+    -fx-background-radius: 999px;
+    -fx-min-width: 44px;
+    -fx-min-height: 24px;
+    -fx-pref-width: 44px;
+    -fx-pref-height: 24px;
+}
+
+.check-box.switch:selected .box {
+    -fx-background-color: -accent;
+    -fx-border-color: -accent;
+}
+
+.check-box.switch .mark {
+    -fx-background-color: white;
+    -fx-background-radius: 999px;
+    -fx-min-width: 18px;
+    -fx-min-height: 18px;
+    -fx-translate-x: -10px;
+}
+
+.check-box.switch:selected .mark {
+    -fx-translate-x: 10px;
+}
+
+.check-box.switch:hover .box {
+    -fx-background-color: derive(-surface-2, -5%);
+}
+
+.check-box.switch:selected:hover .box {
+    -fx-background-color: derive(-accent, -5%);
+}
+

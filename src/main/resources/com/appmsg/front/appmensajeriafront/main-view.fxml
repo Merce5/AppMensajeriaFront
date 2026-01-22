@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.appmsg.front.appmensajeriafront.ui.main.MainController"
+            styleClass="app-root">
+
+    <top>
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="16" bottom="12" left="16"/>
+            </padding>
+
+            <Label text="AppMensajería" styleClass="app-title"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Botón “nuevo chat” opcional para el equipo -->
+            <Button text="＋" styleClass="icon-button" onAction="#onNewChat"/>
+
+            <!-- Avatar -->
+            <Button fx:id="avatarButton" text="👤" onAction="#onOpenSettings" styleClass="avatar-button"/>
+        </HBox>
+    </top>
+
+    <center>
+        <StackPane fx:id="contentPane" styleClass="content-root"/>
+    </center>
+</BorderPane>
