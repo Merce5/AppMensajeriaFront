@@ -25,19 +25,19 @@ public class SettingsController {
 
     private final SettingsService service = new SettingsService();
 
-    // Guardamos el último wallpaper elegido (ruta)
+    // Guardamos el último wallpaper elegido
     private String wallpaperPath;
 
     @FXML
     public void initialize() {
-        // Opciones simples para probar (pueden ser rutas internas en resources)
+        // Opciones simples para probar
         wallpaperCombo.getItems().addAll(
                 "/com/appmsg/front/appmensajeriafront/wallpapers/wp1.jpg",
                 "/com/appmsg/front/appmensajeriafront/wallpapers/wp2.jpg",
                 "/com/appmsg/front/appmensajeriafront/wallpapers/wp3.jpg"
         );
 
-        // Cambios en caliente del tema (visual) + luego lo guardas cuando le dé a Guardar
+        // Cambios en caliente del tema + guardar
         darkModeCheck.selectedProperty().addListener((obs, oldV, newV) -> {
             Scene scene = darkModeCheck.getScene();
             if (scene != null) {
@@ -55,7 +55,7 @@ public class SettingsController {
     private void loadFromBackend() {
         String userId = Session.getUserId(); // TODO: esto lo debe setear Merce al login
         if (userId == null || userId.isBlank()) {
-            statusLabel.setText("⚠️ No hay userId en sesión (login no hecho).");
+            statusLabel.setText("No hay userId en sesión.");
             return;
         }
 
@@ -100,7 +100,7 @@ public class SettingsController {
 
         File file = fc.showOpenDialog(darkModeCheck.getScene().getWindow());
         if (file != null) {
-            // Por ahora guardamos ruta local (ojo si queréis que sea portable)
+            // Por ahora guardamos ruta local
             wallpaperPath = file.toURI().toString();
             wallpaperCombo.setValue(wallpaperPath);
             statusLabel.setText("Fondo seleccionado.");
@@ -111,7 +111,7 @@ public class SettingsController {
     public void onSave(ActionEvent e) {
         String userId = Session.getUserId(); // TODO: viene del login
         if (userId == null || userId.isBlank()) {
-            statusLabel.setText("⚠️ No hay userId en sesión.");
+            statusLabel.setText("No hay userId en sesión.");
             return;
         }
 
@@ -132,7 +132,7 @@ public class SettingsController {
                         throw new RuntimeException(ex);
                     }
                 })
-                .thenAccept(saved -> Platform.runLater(() -> statusLabel.setText("✅ Guardado.")))
+                .thenAccept(saved -> Platform.runLater(() -> statusLabel.setText("Guardado.")))
                 .exceptionally(ex -> {
                     Platform.runLater(() -> statusLabel.setText("Error guardando: " + ex.getMessage()));
                     return null;

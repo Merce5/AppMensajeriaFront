@@ -4,19 +4,6 @@
     -fx-font-size: 13px;
 }
 
-/* Colores (se sobreescriben en light/dark) */
-.root {
-    -bg: #ffffff;
-    -surface: #ffffff;
-    -surface-2: #f5f6f8;
-    -text: #111827;
-    -muted: #6b7280;
-    -border: #e5e7eb;
-    -accent: #2563eb;
-    -accent-2: #1d4ed8;
-    -danger: #ef4444;
-}
-
 /* Estructura */
 .app-root {
     -fx-background-color: -bg;
@@ -65,7 +52,7 @@
     -fx-text-fill: -muted;
 }
 
-/* Card (panel) */
+/* Card */
 .card {
     -fx-background-color: -surface;
     -fx-border-color: -border;
@@ -101,9 +88,6 @@
 }
 
 /* Botones */
-.button {
-    -fx-cursor: hand;
-}
 
 .primary-button {
     -fx-background-color: -accent;
@@ -129,7 +113,7 @@
     -fx-background-color: derive(-surface-2, -4%);
 }
 
-/* Icon buttons (back, +, etc.) */
+/* Icon buttons */
 .icon-button {
     -fx-background-color: -surface-2;
     -fx-text-fill: -text;
@@ -157,7 +141,7 @@
     -fx-background-color: derive(-surface-2, -6%);
 }
 
-/* ===== SWITCH MODERNO (CHECKBOX) ===== */
+/* ===== SWITCH MODERNO ===== */
 
 .check-box.switch {
     -fx-padding: 0;
@@ -197,5 +181,43 @@
 
 .check-box.switch:selected:hover .box {
     -fx-background-color: derive(-accent, -5%);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+}
+
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+button {
+    -fx-cursor: hand;
+    width: 60%;
+    padding: 10px;
+    background: #2c7be5;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+button:hover {
+    background: #1a5fd0;
 }
 
