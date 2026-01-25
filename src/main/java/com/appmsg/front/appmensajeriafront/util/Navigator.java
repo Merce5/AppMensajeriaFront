@@ -11,14 +11,14 @@ public class Navigator {
     private static StackPane contentPane;
     private static final Stack<Parent> history = new Stack<>();
 
-    // ✅ pantalla por defecto para volver si el historial está vacío
+    // pantalla por defecto para volver si el historial está vacío
     private static String homeFxml = null;
 
     public static void setContentPane(StackPane pane) {
         contentPane = pane;
     }
 
-    // ✅ define cuál es la "home" (solo una vez, al arrancar)
+    // define cuál es la "home"
     public static void setHome(String fxmlAbsolutePath) {
         homeFxml = fxmlAbsolutePath;
     }
@@ -45,14 +45,14 @@ public class Navigator {
     public static void back() {
         if (contentPane == null) return;
 
-        // ✅ si hay historial, volvemos
+        // si hay historial, volvemos
         if (!history.isEmpty()) {
             Parent previous = history.pop();
             contentPane.getChildren().setAll(previous);
             return;
         }
 
-        // ✅ si no hay historial, volvemos a home si existe
+        // si no hay historial, volvemos a home si existe
         if (homeFxml != null) {
             load(homeFxml);
         }
