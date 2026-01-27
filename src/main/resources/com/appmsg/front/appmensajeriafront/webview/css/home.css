@@ -1,0 +1,225 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: var(--bg);
+}
+
+/* ==================== HEADER ==================== */
+
+.home-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.home-header h1 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* ==================== ACCIONES RAPIDAS ==================== */
+
+.quick-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    overflow-x: auto;
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-width: 120px;
+}
+
+.action-card:hover {
+    background-color: var(--surface-2);
+    border-color: var(--accent);
+}
+
+.action-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent);
+    border-radius: var(--radius-full);
+    color: white;
+}
+
+.action-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.action-card span {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text);
+    text-align: center;
+}
+
+/* ==================== SECCION CHATS ==================== */
+
+.chats-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chats-section h2 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--muted);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chats-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.loading-chats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-md);
+    color: var(--muted);
+}
+
+/* ==================== ITEM DE CHAT ==================== */
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    border-bottom: 1px solid var(--border);
+}
+
+.chat-item:hover {
+    background-color: var(--surface-2);
+}
+
+.chat-item-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-full);
+    background-color: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.chat-item-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+}
+
+.chat-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.chat-item-name {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-item-time {
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.chat-item-preview {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-item-unread {
+    background-color: var(--accent);
+    color: white;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    margin-left: var(--spacing-sm);
+}
+
+/* ==================== ESTADO VACIO ==================== */
+
+.empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    text-align: center;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: var(--spacing-lg);
+    color: var(--muted);
+    opacity: 0.5;
+}
+
+.empty-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-state h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: var(--spacing-sm);
+}
+
+.empty-state p {
+    color: var(--muted);
+    margin-bottom: var(--spacing-lg);
+}

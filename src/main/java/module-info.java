@@ -2,6 +2,7 @@ module com.appmsg.front.appmensajeriafront {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
+    requires jdk.jsobject; // Para JSObject (bridge Java-JS)
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
@@ -11,19 +12,21 @@ module com.appmsg.front.appmensajeriafront {
     requires com.almasb.fxgl.all;
 
     requires com.google.gson;
-    requires java.net.http; // <-- necesario si SettingsService usa HttpClient
+    requires java.net.http;
 
     opens com.appmsg.front.appmensajeriafront to javafx.fxml;
-
-    // ✅ ESTO ES LO QUE TE FALTABA (para que cargue settings-view.fxml)
     opens com.appmsg.front.appmensajeriafront.ui.settings to javafx.fxml;
+    opens com.appmsg.front.appmensajeriafront.ui.main to javafx.fxml;
+    opens com.appmsg.front.appmensajeriafront.ui.chat to javafx.fxml;
 
-    // ✅ recomendado para Gson (DTOs)
+    // Para Gson (DTOs)
     opens com.appmsg.front.appmensajeriafront.model to com.google.gson;
 
-    opens com.appmsg.front.appmensajeriafront.ui.main to javafx.fxml;
-
+    // Para WebView bridge
+    opens com.appmsg.front.appmensajeriafront.webview to javafx.fxml, javafx.web;
+    exports com.appmsg.front.appmensajeriafront.webview;
 
     exports com.appmsg.front.appmensajeriafront;
     exports com.appmsg.front.appmensajeriafront.ui.main;
+    exports com.appmsg.front.appmensajeriafront.ui.chat;
 }
