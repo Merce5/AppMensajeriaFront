@@ -10,22 +10,40 @@ const Home = {
     },
 
     loadChats: function() {
-        // Por ahora mostramos el estado vacio o algunos chats de ejemplo
-        // En una implementacion real, esto llamaria a un endpoint del backend
+        // Mostrar estado de carga
+        this.showLoadingState();
 
-        // Simular carga
-        setTimeout(() => {
-            // Por ahora mostrar estado vacio
-            // Cuando tengas el endpoint de listar chats, descomentar:
-            // this.fetchChats();
-
-            this.showEmptyState();
+        // Llamar al endpoint real
+        this.fetchChats();
         }, 500);
+    },
+
+    showLoadingState: function() {
+        const container = document.getElementById('chats-list');
+        container.innerHTML = `
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Cargando chats...</p>
+            </div>
+        `;
     },
 
     fetchChats: async function() {
         try {
-            // TODO: Implementar cuando el backend tenga endpoint de listar chats
+            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM/api/';
+            const response = await fetch(`${BASE_URL}/api/chats`, {
+                method: 'doGET', //doGET?
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const chats = await response.json();
+            this.renderChats(chats);
             // const chats = await Bridge.getChats();
             // this.renderChats(chats);
 
