@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>Login</title>
     <link rel="stylesheet" type="text/css" href="styles/base.css">
-    <script type="text/javascript" src="js/script.js"></script>
 </head>
 <body>
 
+<script type="text/javascript" src="js/login.js"></script>
+<script type="text/javascript" src="js/bridge.js"></script>
 <div class="login-box">
     <h2>Login</h2>
     <label for="username">
@@ -17,7 +18,7 @@
         <input type="password" id="password" placeholder="Contraseña">
     </label>
     <div style="display: flex; justify-content: center; align-items: center">
-        <button type="button" onclick="login()">Entrar</button>
+        <button type="button" onclick="Login.tryToLogin()">Entrar</button>
     </div>
 </div>
 </body>
