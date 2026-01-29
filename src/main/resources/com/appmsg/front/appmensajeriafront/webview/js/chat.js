@@ -1,0 +1,306 @@
+/**
+ * Chat - Logica de la vista de chat
+ */
+const Chat = {
+    messages: [],
+    attachments: [],
+    typingTimeout: null,
+    isTyping: false,
+    userId: null,
+    chatId: null,
+
+    // ==================== INICIALIZACION ====================
+
+    init: function() {
+        this.userId = Bridge.getUserId();
+        this.chatId = Bridge.getChatId();
+
+        if (!this.chatId) {
+            console.error('No chatId provided');
+            return;
+        }
+
+        // Conectar al WebSocket
+        Bridge.connectToChat(this.chatId);
+
+        // Setup
+        this.setupEventListeners();
+        this.loadMessages();
+
+        Bridge.log('Chat initialized: ' + this.chatId);
+    },
+
+    setupEventListeners: function() {
+        const input = document.getElementById('message-input');
+        if (input) {
+            input.addEventListener('focus', () => this.scrollToBottom());
+        }
+    },
+
+    loadMessages: function() {
+        // Los mensajes llegan por WebSocket
+        // Aqui podriamos cargar historial si hubiera endpoint
+    },
+
+    // ==================== ENVIO DE MENSAJES ====================
+
+    sendMessage: function() {
+        const input = document.getElementById('message-input');
+        const text = input.value.trim();
+
+        if (!text && this.attachments.length === 0) return;
+
+        // Si hay archivos, subirlos primero
+        if (this.attachments.length > 0) {
+            this.uploadAndSend(text);
+        } else {
+            Bridge.sendMessage(text, []);
+            input.value = '';
+        }
+
+        // Limpiar estado de typing
+        this.stopTyping();
+    },
+
+    uploadAndSend: async function(text) {
+        const sendBtn = document.querySelector('.btn-send');
+        sendBtn.disabled = true;
+
+        try {
+            const response = await Bridge.uploadFiles(this.attachments);
+            let urls = [];
+
+            if (response.files) {
+                // El backend devuelve files como string JSON
+                try {
+                    urls = JSON.parse(response.files);
+                } catch (e) {
+                    urls = response.files;
+                }
+            }
+
+            Bridge.sendMessage(text, urls);
+
+            // Limpiar
+            this.attachments = [];
+            this.updateAttachmentsPreview();
+            document.getElementById('message-input').value = '';
+
+        } catch (error) {
+            console.error('Error uploading files:', error);
+            alert('Error al subir archivos: ' + error.message);
+        } finally {
+            sendBtn.disabled = false;
+        }
+    },
+
+    // ==================== RECEPCION DE MENSAJES ====================
+
+    onMessageReceived: function(message) {
+        // Ocultar estado vacio
+        const emptyState = document.getElementById('empty-state');
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
+
+        // Verificar si debemos scroll automatico
+        const container = document.getElementById('messages');
+        const shouldScroll = Utils.isNearBottom(container);
+
+        // Renderizar mensaje
+        this.renderMessage(message);
+
+        // Scroll si estaba cerca del final
+        if (shouldScroll) {
+            this.scrollToBottom();
+        }
+
+        this.messages.push(message);
+    },
+
+    renderMessage: function(msg) {
+        const container = document.getElementById('messages');
+        const isOwn = msg.senderId === this.userId;
+
+        const div = document.createElement('div');
+        div.className = 'message ' + (isOwn ? 'message-own' : 'message-other');
+        div.dataset.messageId = msg.messageId || '';
+
+        let html = '';
+
+        // Nombre del remitente (solo en mensajes de otros)
+        if (!isOwn && msg.username) {
+            html += `<div class="message-sender">${Utils.escapeHtml(msg.username)}</div>`;
+        }
+
+        // Multimedia
+        if (msg.multimedia && msg.multimedia.length > 0) {
+            html += '<div class="message-media">';
+            msg.multimedia.forEach(url => {
+                if (Utils.isImage(url)) {
+                    html += `<img src="${url}" class="media-image" onclick="Chat.openMedia('${url}')" alt="Imagen">`;
+                } else if (Utils.isVideo(url)) {
+                    html += `<video src="${url}" class="media-video" controls></video>`;
+                } else {
+                    const fileName = Utils.getFileName(url);
+                    const icon = Utils.getFileIcon(url);
+                    html += `<a href="${url}" class="media-file" target="_blank">
+                        <span>${icon}</span>
+                        <span>${Utils.escapeHtml(fileName)}</span>
+                    </a>`;
+                }
+            });
+            html += '</div>';
+        }
+
+        // Texto
+        if (msg.message) {
+            const escapedText = Utils.escapeHtml(msg.message);
+            const linkedText = Utils.linkify(escapedText);
+            html += `<p class="message-text">${linkedText}</p>`;
+        }
+
+        // Timestamp y estado
+        const time = msg.timestamp ? Utils.formatTime(msg.timestamp) : '';
+        const statusIcon = isOwn ? this.getStatusIcon(msg.status) : '';
+        html += `<span class="message-meta">${time} ${statusIcon}</span>`;
+
+        div.innerHTML = html;
+        container.appendChild(div);
+    },
+
+    getStatusIcon: function(status) {
+        switch (status) {
+            case 'sent':
+                return '<span class="status-icon">✓</span>';
+            case 'delivered':
+                return '<span class="status-icon">✓✓</span>';
+            case 'read':
+                return '<span class="status-icon read">✓✓</span>';
+            default:
+                return '';
+        }
+    },
+
+    // ==================== TYPING INDICATOR ====================
+
+    handleTyping: function(event) {
+        // No enviar typing si es Enter o teclas especiales
+        if (event.key === 'Enter') return;
+
+        if (!this.isTyping) {
+            this.isTyping = true;
+            Bridge.sendTyping(true);
+        }
+
+        // Reset timeout
+        clearTimeout(this.typingTimeout);
+        this.typingTimeout = setTimeout(() => this.stopTyping(), 2000);
+    },
+
+    stopTyping: function() {
+        if (this.isTyping) {
+            this.isTyping = false;
+            Bridge.sendTyping(false);
+        }
+        clearTimeout(this.typingTimeout);
+    },
+
+    onTypingReceived: function(data) {
+        const indicator = document.getElementById('typing-indicator');
+        const userSpan = document.getElementById('typing-user');
+
+        if (data.isTyping && data.senderId !== this.userId) {
+            userSpan.textContent = data.username || 'Alguien';
+            indicator.classList.remove('hidden');
+        } else {
+            indicator.classList.add('hidden');
+        }
+    },
+
+    handleKeyPress: function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            this.sendMessage();
+        }
+    },
+
+    // ==================== ARCHIVOS ADJUNTOS ====================
+
+    openFilePicker: function() {
+        const files = Bridge.openFileChooser('all');
+        if (files && files.length > 0) {
+            this.attachments = this.attachments.concat(files);
+            this.updateAttachmentsPreview();
+        }
+    },
+
+    updateAttachmentsPreview: function() {
+        const container = document.getElementById('attachments-preview');
+
+        if (this.attachments.length === 0) {
+            container.classList.add('hidden');
+            container.innerHTML = '';
+            return;
+        }
+
+        container.classList.remove('hidden');
+        container.innerHTML = this.attachments.map((file, index) => {
+            const fileName = Utils.getFileName(file);
+            const icon = Utils.getFileIcon(file);
+            return `
+                <div class="attachment-item">
+                    <span>${icon}</span>
+                    <span>${Utils.escapeHtml(fileName)}</span>
+                    <button class="attachment-remove" onclick="Chat.removeAttachment(${index})">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }).join('');
+    },
+
+    removeAttachment: function(index) {
+        this.attachments.splice(index, 1);
+        this.updateAttachmentsPreview();
+    },
+
+    // ==================== CONEXION ====================
+
+    onConnectionStatusChanged: function(connected) {
+        const status = document.getElementById('chat-status');
+        if (connected) {
+            status.textContent = 'Conectado';
+            status.className = 'chat-status online';
+        } else {
+            status.textContent = 'Reconectando...';
+            status.className = 'chat-status';
+        }
+    },
+
+    // ==================== NAVEGACION ====================
+
+    openProfile: function() {
+        // Navegar a la vista de perfil
+        if (typeof loadPage === 'function') {
+            loadPage('profile');
+        }
+    },
+
+    openMedia: function(url) {
+        // Abrir imagen en nueva ventana/modal
+        window.open(url, '_blank');
+    },
+
+    // ==================== UTILIDADES ====================
+
+    scrollToBottom: function() {
+        const container = document.getElementById('messages');
+        Utils.scrollToBottom(container);
+    }
+};
+
+// Inicializar cuando el bridge este listo
+Bridge.whenReady(() => Chat.init());

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.web.WebView?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.appmsg.front.appmensajeriafront.ui.chat.ChatController"
+           style="-fx-background-color: #ffffff;">
+
+    <WebView fx:id="webView" />
+
+</StackPane>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Mensajeria</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/common.css">
+</head>
+<body>
+    <div id="app">
+        <div class="loading">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script src="js/bridge.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        // Páginas disponibles
+        const pages = {
+            'home': { html: 'home.html', css: 'css/home.css', js: 'js/home.js' },
+            'chat': { html: 'chat.html', css: 'css/chat.css', js: 'js/chat.js' },
+            'profile': { html: 'profile.html', css: 'css/profile.css', js: 'js/profile.js' },
+            'invite': { html: 'invite.html', css: 'css/invite.css', js: 'js/invite.js' }
+        };
+
+        // Historial de navegación
+        let history = [];
+        let currentPage = null;
+
+        // Cargar una página
+        async function loadPage(pageName) {
+            const page = pages[pageName] || pages['chat'];
+
+            try {
+                // Cargar HTML
+                const response = await fetch(page.html);
+                const html = await response.text();
+
+                // Insertar HTML
+                document.getElementById('app').innerHTML = html;
+
+                // Cargar CSS si no está cargado
+                if (!document.querySelector(`link[href="${page.css}"]`)) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = page.css;
+                    document.head.appendChild(link);
+                }
+
+                // Cargar JS
+                await loadScript(page.js);
+
+                // Guardar en historial
+                if (currentPage && currentPage !== pageName) {
+                    history.push(currentPage);
+                }
+                currentPage = pageName;
+
+            } catch (error) {
+                console.error('Error loading page:', error);
+                document.getElementById('app').innerHTML = `
+                    <div class="loading">
+                        <p class="error-text">Error al cargar la página</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Cargar script dinámicamente
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                // Remover script anterior si existe
+                const existing = document.querySelector(`script[data-page-script="${src}"]`);
+                if (existing) {
+                    existing.remove();
+                }
+
+                const script = document.createElement('script');
+                script.src = src;
+                script.setAttribute('data-page-script', src);
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+
+        // Volver atrás
+        function goBack() {
+            if (history.length > 0) {
+                const previousPage = history.pop();
+                currentPage = null; // Evitar que se agregue al historial
+                loadPage(previousPage);
+            } else {
+                // Si no hay historial, volver a home
+                loadPage('home');
+            }
+        }
+
+        // Callback cuando el bridge está listo
+        function onBridgeReady() {
+            console.log('Bridge ready');
+
+            // Obtener página inicial desde params
+            const params = Bridge.getInitParams();
+            const initialPage = params.page || 'home';
+
+            // Aplicar tema si está especificado
+            if (params.theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+
+            loadPage(initialPage);
+        }
+
+        // Si el bridge ya está disponible (por si carga antes del script)
+        if (typeof javaBridge !== 'undefined') {
+            onBridgeReady();
+        }
+    </script>
+</body>
+</html>
