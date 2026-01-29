@@ -20,6 +20,11 @@ const Bridge = {
         javaBridge.tryToLogin(username, password);
     },
 
+    navigate: function(page) {
+        if (this.isReady()) {
+            javaBridge.navigate(page);
+        }
+    },
     // ==================== LOG ====================
 
     log: function(message) {

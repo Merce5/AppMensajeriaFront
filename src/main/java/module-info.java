@@ -15,8 +15,6 @@ module com.appmsg.front.appmensajeriafront {
     requires java.net.http;
 
     opens com.appmsg.front.appmensajeriafront to javafx.fxml;
-    opens com.appmsg.front.appmensajeriafront.ui.settings to javafx.fxml;
-    opens com.appmsg.front.appmensajeriafront.ui.main to javafx.fxml;
     opens com.appmsg.front.appmensajeriafront.ui.login to javafx.fxml;
 
     // Para Gson (DTOs)
@@ -27,5 +25,4 @@ module com.appmsg.front.appmensajeriafront {
 
     exports com.appmsg.front.appmensajeriafront;
     exports com.appmsg.front.appmensajeriafront.service;
-    exports com.appmsg.front.appmensajeriafront.ui.main;
 }

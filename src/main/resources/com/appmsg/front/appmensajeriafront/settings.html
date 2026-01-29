@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ajustes</title>
+    <link rel="stylesheet" href="styles/base.css" />
+    <script src="js/bridge.js"></script>
+    <script src="js/settings.js"></script>
+</head>
+
+<body>
+<!-- Topbar -->
+<header class="topbar">
+    <div class="container topbar-inner">
+        <button class="icon-btn" type="button" title="Volver" onclick="Bridge.navigate('main.html')">←</button>
+        <div>
+            <div class="kicker">Cuenta</div>
+            <div class="app-title">Ajustes</div>
+        </div>
+
+        <div class="topbar-spacer"></div>
+
+        <div id="statusLabel" class="status-pill">Listo</div>
+    </div>
+</header>
+
+<main class="container page">
+    <div class="grid-2">
+        <!-- Apariencia -->
+        <section class="card">
+            <h3 class="card-title">Apariencia</h3>
+
+            <div class="row-between" style="margin-top: 10px;">
+                <div>
+                    <div style="font-weight: 900;">Modo oscuro</div>
+                    <div class="muted" style="margin-top: 2px;">Cambia el tema de la interfaz.</div>
+                </div>
+
+                <label class="switch" title="Modo oscuro">
+                    <input id="darkMode" type="checkbox" />
+                </label>
+            </div>
+
+            <div style="height: 12px;"></div>
+
+            <div class="field">
+                <label for="wallpaper">Fondo del chat</label>
+                <div class="row">
+                    <select id="wallpaper"></select>
+                    <button class="btn btn-secondary" type="button" onclick="Settings.chooseWallpaper()">Elegir…</button>
+                </div>
+                <div class="muted">
+                    Puedes usar uno predefinido o seleccionar una imagen local.
+                </div>
+            </div>
+        </section>
+
+        <!-- Perfil -->
+        <section class="card">
+            <h3 class="card-title">Perfil</h3>
+
+            <div class="field">
+                <label for="displayName">Nombre</label>
+                <input id="displayName" class="input" type="text" placeholder="Tu nombre" />
+            </div>
+
+            <div style="height: 12px;"></div>
+
+            <div class="field">
+                <label for="status">Estado</label>
+                <input id="status" class="input" type="text" placeholder="Disponible" />
+            </div>
+
+            <div style="height: 14px;"></div>
+
+            <div class="row" style="justify-content: flex-end;">
+                <button class="btn btn-primary" type="button" onclick="Settings.save()">Guardar</button>
+            </div>
+
+            <div class="muted" style="margin-top: 10px;">
+                Estos cambios se guardan en tu perfil del backend.
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    // Aplicación visual inmediata del theme (solo HTML/CSS).
+    // Tu settings.js ya hace dataset.theme cuando cambia el checkbox.
+</script>
+</body>
+</html>
