@@ -1,37 +1,39 @@
 package com.appmsg.front.appmensajeriafront;
 
 import com.appmsg.front.appmensajeriafront.service.JavaBridge;
+import com.appmsg.front.appmensajeriafront.service.WebViewManager;
 import com.appmsg.front.appmensajeriafront.util.ThemeManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class HelloApplication extends Application {
+    private WebViewManager webViewManager;
+
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage primaryStage) {
+
         WebView webView = new WebView();
-        WebEngine webEngine = webView.getEngine();
-        webEngine.setJavaScriptEnabled(true);
 
-        webEngine.load(getClass().getResource("login.html").toExternalForm());
+        webViewManager = new WebViewManager(webView);
 
-        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
-                JSObject window = (JSObject) webEngine.executeScript("window");
-                window.setMember("app", new JavaBridge());
-            }
-        });
+        webViewManager.initialize("login.html", null);
 
+        BorderPane root = new BorderPane();
+        root.setCenter(webView);
 
-        Scene scene = new Scene(webView, 800, 600);
+        Scene scene = new Scene(root, 1200, 800);
 
-        ThemeManager.apply(scene, ThemeManager.Theme.LIGHT);
-        stage.setTitle("App Mensajería");
-        stage.setScene(scene);
-        stage.show();
+        primaryStage.setTitle("App Mensajería");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     public static void main(String[] args) {
