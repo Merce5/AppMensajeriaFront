@@ -16,6 +16,7 @@ public class MainController {
 
     @FXML
     public void initialize() {
+        Navigator.setMainController(this);
         Navigator.setContentPane(contentPane);
 
         // Cargar WebView con index.html por defecto
@@ -114,5 +115,14 @@ public class MainController {
      */
     public ChatController getCurrentChatController() {
         return currentChatController;
+    }
+
+    /**
+     * Refresca la lista de chats en la vista principal.
+     */
+    public void refresh() {
+        if (currentChatController != null) {
+            currentChatController.refreshHome();
+        }
     }
 }

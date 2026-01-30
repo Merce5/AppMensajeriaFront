@@ -15,7 +15,7 @@ import java.net.URLEncoder;
  */
 public class ProfileService {
 
-    private static final String PROFILE_URL = "http://localhost:8080/APPMensajeriaUEM/api/profile";
+    private static final String PROFILE_URL = "http://localhost:8080/APPMensajeriaUEM_war_exploded/api/profile";
 
     private final Gson gson;
 

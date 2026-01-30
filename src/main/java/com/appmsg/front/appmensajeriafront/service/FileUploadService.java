@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class FileUploadService {
 
-    private static final String UPLOAD_URL = "http://localhost:8080/APPMensajeriaUEM/api/upload";
+    private static final String UPLOAD_URL = "http://localhost:8080/APPMensajeriaUEM_war_exploded/api/upload";
     private static final String BOUNDARY = "----WebKitFormBoundary" + System.currentTimeMillis();
     private static final String LINE_FEED = "\r\n";
 

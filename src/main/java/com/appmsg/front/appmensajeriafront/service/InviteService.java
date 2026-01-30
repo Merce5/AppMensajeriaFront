@@ -16,7 +16,7 @@ import java.net.URL;
  */
 public class InviteService {
 
-    private static final String INVITE_URL = "http://localhost:8080/APPMensajeriaUEM/api/invite";
+    private static final String INVITE_URL = "http://localhost:8080/APPMensajeriaUEM_war_exploded/api/invite";
 
     private final Gson gson;
 

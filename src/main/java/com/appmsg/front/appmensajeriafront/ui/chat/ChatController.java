@@ -82,4 +82,13 @@ public class ChatController {
     public WebViewManager getWebViewManager() {
         return webViewManager;
     }
+
+    /**
+     * Llama a la funcion refresh de home.js para recargar la lista de chats.
+     */
+    public void refreshHome() {
+        if (webViewManager != null) {
+            webViewManager.getWebEngine().executeScript("Home.refresh();");
+        }
+    }
 }

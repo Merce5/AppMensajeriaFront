@@ -1,5 +1,6 @@
 package com.appmsg.front.appmensajeriafront.util;
 
+import com.appmsg.front.appmensajeriafront.ui.main.MainController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
@@ -10,12 +11,17 @@ public class Navigator {
 
     private static StackPane contentPane;
     private static final Stack<Parent> history = new Stack<>();
+    private static MainController mainControllerInstance;
 
     // ✅ pantalla por defecto para volver si el historial está vacío
     private static String homeFxml = null;
 
     public static void setContentPane(StackPane pane) {
         contentPane = pane;
+    }
+
+    public static void setMainController(MainController controller) {
+        mainControllerInstance = controller;
     }
 
     // ✅ define cuál es la "home" (solo una vez, al arrancar)
@@ -29,7 +35,8 @@ public class Navigator {
         }
 
         try {
-            Parent view = FXMLLoader.load(Navigator.class.getResource(fxmlAbsolutePath));
+            FXMLLoader loader = new FXMLLoader(Navigator.class.getResource(fxmlAbsolutePath));
+            Parent view = loader.load();
 
             // guardamos la vista actual antes de cambiar
             if (!contentPane.getChildren().isEmpty() && contentPane.getChildren().get(0) instanceof Parent) {
@@ -49,6 +56,11 @@ public class Navigator {
         if (!history.isEmpty()) {
             Parent previous = history.pop();
             contentPane.getChildren().setAll(previous);
+
+            // Si hemos vuelto a la vista principal (historial vacio), refrescar
+            if (history.isEmpty() && mainControllerInstance != null) {
+                mainControllerInstance.refresh();
+            }
             return;
         }
 
