@@ -69,17 +69,13 @@ const Home = {
     },
 
     renderChatItem: function(chat) {
-        // Log para diagnostico
-        javaBridge.log('Chat object received: ' + JSON.stringify(chat));
-
         const initials = this.getInitials(chat.name);
         const time = chat.lastMessageTime ? Utils.formatRelative(chat.lastMessageTime) : '';
         const unreadBadge = chat.unreadCount > 0
-            ? `<span class="chat-item-unread">${chat.unreadCount}</span>`
-            : '';
+            ? `<span class="chat-item-unread">${chat.unreadBadge}</span>` : "";
 
         return `
-            <div class="chat-item" onclick="Home.openChat('${chat.id}')">
+            <div class="chat-item" onclick="Home.openChat('${chat._id.toString()}')">
                 <div class="chat-item-avatar">
                     ${chat.image
                         ? `<img src="${chat.image}" alt="${chat.name}">`
