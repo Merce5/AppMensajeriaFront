@@ -1,63 +1,59 @@
 package com.appmsg.front.appmensajeriafront.webview;
 
+import com.appmsg.front.appmensajeriafront.service.SettingsBridge;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Window;
 import netscape.javascript.JSObject;
 
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Gestiona el WebView y la comunicación con JavaScript.
- * Inyecta el JavaBridge cuando la página carga.
- */
-public class WebViewManager {
+public class WebViewManager implements PageLoader {
 
     private final WebView webView;
     private final WebEngine webEngine;
+
     private JavaBridge bridge;
-    private Map<String, String> initParams;
+    private SettingsBridge settingsBridge;
+    private Map<String, String> initParams = new HashMap<>();
 
     public WebViewManager(WebView webView) {
         this.webView = webView;
         this.webEngine = webView.getEngine();
-        this.initParams = new HashMap<>();
         setupWebEngine();
+    }
+
+    @Override
+    public void load(String page) {
+        loadPage(page);
     }
 
     private void setupWebEngine() {
         webEngine.setJavaScriptEnabled(true);
-
-        // Deshabilitar popups
         webEngine.setCreatePopupHandler(param -> null);
 
-        // Inyectar bridge cuando la página carga
         webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
-                injectBridge();
+                injectBridges();
             }
         });
 
-        // Log de errores JavaScript
-        webEngine.setOnError(event -> {
-            System.err.println("WebView Error: " + event.getMessage());
-        });
+        webEngine.setOnError(event -> System.err.println("WebView Error: " + event.getMessage()));
     }
 
-    /**
-     * Inicializa el WebView con una página HTML y parámetros.
-     */
     public void initialize(String htmlPage, Map<String, String> params) {
-        this.initParams = params != null ? params : new HashMap<>();
-        this.bridge = new JavaBridge(webEngine, initParams);
+        this.initParams = (params != null) ? params : new HashMap<>();
+
+        this.bridge = new JavaBridge(webEngine, initParams, this);
+
+        this.settingsBridge = new SettingsBridge(webEngine, this::getWindow);
+
         loadPage(htmlPage);
     }
 
-    /**
-     * Carga una página HTML desde los recursos.
-     */
     public void loadPage(String htmlPage) {
         String resourcePath = "/com/appmsg/front/appmensajeriafront/webview/" + htmlPage;
         URL url = getClass().getResource(resourcePath);
@@ -68,55 +64,30 @@ public class WebViewManager {
         }
     }
 
-    /**
-     * Inyecta el JavaBridge en el contexto JavaScript.
-     */
-    private void injectBridge() {
+    private void injectBridges() {
         if (bridge == null) {
-            bridge = new JavaBridge(webEngine, initParams);
+            bridge = new JavaBridge(webEngine, initParams, this);
+        }
+        if (settingsBridge == null) {
+            settingsBridge = new SettingsBridge(webEngine, this::getWindow);
         }
 
         JSObject window = (JSObject) webEngine.executeScript("window");
         window.setMember("javaBridge", bridge);
+        window.setMember("settingsBridge", settingsBridge);
 
-        // Notificar a JS que el bridge está listo
         webEngine.executeScript("if(typeof onBridgeReady === 'function') { onBridgeReady(); }");
     }
 
-    /**
-     * Ejecuta JavaScript en el WebView.
-     */
-    public void executeScript(String script) {
-        webEngine.executeScript(script);
+    private Window getWindow() {
+        return webView.getScene() != null ? webView.getScene().getWindow() : null;
     }
 
-    /**
-     * Obtiene el JavaBridge para configuración adicional.
-     */
-    public JavaBridge getBridge() {
-        return bridge;
-    }
-
-    /**
-     * Obtiene el WebView.
-     */
-    public WebView getWebView() {
-        return webView;
-    }
-
-    /**
-     * Obtiene el WebEngine.
-     */
-    public WebEngine getWebEngine() {
-        return webEngine;
-    }
-
-    /**
-     * Limpia recursos cuando se cierra.
-     */
     public void cleanup() {
-        if (bridge != null) {
-            bridge.cleanup();
-        }
+        if (bridge != null) bridge.cleanup();
     }
+
+    public WebView getWebView() { return webView; }
+    public WebEngine getWebEngine() { return webEngine; }
+    public JavaBridge getBridge() { return bridge; }
 }

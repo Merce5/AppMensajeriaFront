@@ -25,4 +25,6 @@ module com.appmsg.front.appmensajeriafront {
 
     exports com.appmsg.front.appmensajeriafront;
     exports com.appmsg.front.appmensajeriafront.service;
+    exports com.appmsg.front.appmensajeriafront.webview;
+    opens com.appmsg.front.appmensajeriafront.webview to javafx.fxml, javafx.web;
 }

@@ -1,6 +1,6 @@
 package com.appmsg.front.appmensajeriafront;
 
-import com.appmsg.front.appmensajeriafront.service.WebViewManager;
+import com.appmsg.front.appmensajeriafront.webview.WebViewManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;

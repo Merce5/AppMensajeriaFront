@@ -3,17 +3,20 @@ const Login = {
         Bridge.tryToLogin(
             document.getElementById("username").value,
             document.getElementById("password").value
-        )
+        );
     }
-}
+};
 
-function onLoginResult(result) {
-    if (result.ok) {
-        console.log("Login OK, userId:", result.userId);
+window.onLoginResult = function (result) {
+    // Por si alguna vez llega como string JSON
+    const data = (typeof result === "string") ? JSON.parse(result) : result;
+
+    if (data && data.ok) {
+        console.log("Login OK, userId:", data.userId);
 
         Bridge.navigate("main.html");
 
     } else {
         alert("Usuario o contraseña incorrectos");
     }
-}
+};

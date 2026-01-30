@@ -1,220 +1,248 @@
-/**
- * Bridge - Wrapper para comunicación con Java
- * javaBridge es inyectado por WebViewManager
- */
+/* Bridge */
+
 const Bridge = {
-
-    // ==================== ESTADO ====================
-
-    isReady: function() {
-        return typeof javaBridge !== 'undefined';
+    isReady() {
+        return typeof window.javaBridge !== "undefined";
     },
 
-    whenReady: function(callback) {
-        if (this.isReady()) {
-            callback();
-        } else {
-            window.onBridgeReady = callback;
-        }
+    whenReady(callback) {
+        if (this.isReady()) callback();
+        else window.onBridgeReady = callback;
     },
 
-    // ==================== DATOS DE SESIÓN ====================
-
-    getUserId: function() {
-        if (!this.isReady()) return null;
-        return javaBridge.getUserId();
-    },
-
-    getChatId: function() {
-        if (!this.isReady()) return null;
-        return javaBridge.getChatId();
-    },
-
-    getInitParams: function() {
-        if (!this.isReady()) return {};
+    getInitParams() {
+        if (!this.isReady() || typeof javaBridge.getInitParams !== "function") return {};
         try {
-            const paramsJson = javaBridge.getInitParams();
-            return JSON.parse(paramsJson || '{}');
+            const json = javaBridge.getInitParams();
+            return json ? JSON.parse(json) : {};
         } catch (e) {
-            console.error('Error parsing init params:', e);
+            console.warn("Error parsing init params", e);
             return {};
         }
     },
 
-    // ==================== CHAT / WEBSOCKET ====================
-
-    connectToChat: function(chatId) {
-        if (!this.isReady()) return;
-        javaBridge.connectToChat(chatId);
-    },
-
-    sendMessage: function(text, multimedia) {
-        if (!this.isReady()) return;
-        const multimediaJson = JSON.stringify(multimedia || []);
-        javaBridge.sendMessage(text, multimediaJson);
-    },
-
-    sendTyping: function(isTyping) {
-        if (!this.isReady()) return;
-        javaBridge.sendTypingIndicator(isTyping);
-    },
-
-    disconnectChat: function() {
-        if (!this.isReady()) return;
-        javaBridge.disconnectChat();
-    },
-
-    // ==================== FILE CHOOSER ====================
-
-    openFileChooser: function(filterType) {
-        if (!this.isReady()) return [];
+    log(message) {
         try {
-            const result = javaBridge.openFileChooser(filterType || 'all');
-            return result ? JSON.parse(result) : [];
-        } catch (e) {
-            console.error('Error opening file chooser:', e);
-            return [];
+            if (this.isReady() && typeof javaBridge.log === "function") javaBridge.log(message);
+        } catch (_) {}
+        console.log(message);
+    },
+
+    getUserId() {
+        if (!this.isReady() || typeof javaBridge.getUserId !== "function") return null;
+        try { return javaBridge.getUserId(); } catch (_) { return null; }
+    },
+
+    getChatId() {
+        if (!this.isReady()) return null;
+        const fn = javaBridge.getChatId;
+        if (typeof fn !== "function") return null;
+        try { return fn.call(javaBridge); } catch (_) { return null; }
+    },
+
+    tryToLogin(username, password) {
+        if (!this.isReady()) return;
+        if (typeof javaBridge.tryToLogin === "function") {
+            javaBridge.tryToLogin(username, password);
         }
     },
 
-    // ==================== UPLOAD (async) ====================
-
-    uploadFiles: function(filePaths) {
-        return new Promise((resolve, reject) => {
-            if (!this.isReady()) {
-                reject(new Error('Bridge not ready'));
-                return;
-            }
-
-            const callbackName = '_uploadCallback_' + Date.now();
-            window[callbackName] = function(responseJson) {
-                delete window[callbackName];
-                try {
-                    const response = JSON.parse(responseJson);
-                    if (response.success) {
-                        resolve(response);
-                    } else {
-                        reject(new Error(response.error || 'Upload failed'));
-                    }
-                } catch (e) {
-                    reject(e);
-                }
-            };
-
-            javaBridge.uploadFiles(JSON.stringify(filePaths), callbackName);
-        });
-    },
-
-    // ==================== PROFILE (async) ====================
-
-    loadProfile: function(userId) {
-        return new Promise((resolve, reject) => {
-            if (!this.isReady()) {
-                reject(new Error('Bridge not ready'));
-                return;
-            }
-
-            const callbackName = '_profileCallback_' + Date.now();
-            window[callbackName] = function(responseJson) {
-                delete window[callbackName];
-                try {
-                    const response = JSON.parse(responseJson);
-                    if (response.error) {
-                        reject(new Error(response.error));
-                    } else {
-                        resolve(response);
-                    }
-                } catch (e) {
-                    reject(e);
-                }
-            };
-
-            javaBridge.loadProfile(userId, callbackName);
-        });
-    },
-
-    // ==================== INVITE (async) ====================
-
-    joinByInvite: function(inviteCode) {
-        return new Promise((resolve, reject) => {
-            if (!this.isReady()) {
-                reject(new Error('Bridge not ready'));
-                return;
-            }
-
-            const callbackName = '_inviteCallback_' + Date.now();
-            window[callbackName] = function(responseJson) {
-                delete window[callbackName];
-                try {
-                    const response = JSON.parse(responseJson);
-                    if (response.success) {
-                        resolve(response);
-                    } else {
-                        reject(new Error(response.message || 'Join failed'));
-                    }
-                } catch (e) {
-                    reject(e);
-                }
-            };
-
-            javaBridge.joinByInvite(inviteCode, callbackName);
-        });
-    },
-
-    // ==================== NAVEGACIÓN ====================
-
-    navigateTo: function(page) {
+    navigate(page) {
         if (!this.isReady()) return;
-        javaBridge.navigateTo(page);
+
+        if (typeof javaBridge.navigate === "function") {
+            javaBridge.navigate(page);
+            return;
+        }
+        if (typeof javaBridge.navigateTo === "function") {
+            javaBridge.navigateTo(page);
+            return;
+        }
+
+        if (typeof window.loadPage === "function") window.loadPage(page);
     },
 
-    goBack: function() {
-        // Primero intentar navegación JS, luego Java
-        if (typeof window.goBack === 'function') {
+    goBack() {
+        if (typeof window.goBack === "function") {
             window.goBack();
-        } else if (this.isReady()) {
+            return;
+        }
+        if (this.isReady() && typeof javaBridge.goBack === "function") {
             javaBridge.goBack();
         }
     },
 
-    // ==================== LOG ====================
+    connectToChat(chatId) {
+        if (!this.isReady() || typeof javaBridge.connectToChat !== "function") return;
+        javaBridge.connectToChat(chatId);
+    },
 
-    log: function(message) {
-        if (this.isReady()) {
-            javaBridge.log(message);
+    sendMessage(text, multimedia) {
+        if (!this.isReady() || typeof javaBridge.sendMessage !== "function") return;
+        const multimediaJson = JSON.stringify(multimedia || []);
+        javaBridge.sendMessage(text, multimediaJson);
+    },
+
+    sendTyping(isTyping) {
+        if (!this.isReady()) return;
+        if (typeof javaBridge.sendTyping === "function") {
+            javaBridge.sendTyping(!!isTyping);
+            return;
         }
-        console.log(message);
+        if (typeof javaBridge.sendTypingIndicator === "function") {
+            javaBridge.sendTypingIndicator(!!isTyping);
+        }
+    },
+
+    disconnectChat() {
+        if (!this.isReady() || typeof javaBridge.disconnectChat !== "function") return;
+        javaBridge.disconnectChat();
+    },
+
+    openFileChooser(filterType) {
+        if (!this.isReady()) return [];
+        const fn = javaBridge.openFileChooser;
+        if (typeof fn !== "function") return [];
+        try {
+            const result = fn.call(javaBridge, filterType || "all");
+            return result ? JSON.parse(result) : [];
+        } catch (e) {
+            console.error("Error opening file chooser:", e);
+            return [];
+        }
+    },
+
+    uploadFiles(filePaths) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) {
+                reject(new Error("Bridge not ready"));
+                return;
+            }
+
+            const fn = javaBridge.uploadFiles;
+            if (typeof fn !== "function") {
+                reject(new Error("uploadFiles not available"));
+                return;
+            }
+
+            const callbackName = "_uploadCallback_" + Date.now();
+            window[callbackName] = function (responseJson) {
+                delete window[callbackName];
+                try {
+                    const response = JSON.parse(responseJson);
+                    if (response.success) resolve(response);
+                    else reject(new Error(response.error || "Upload failed"));
+                } catch (e) {
+                    reject(e);
+                }
+            };
+
+            try {
+                fn.call(javaBridge, JSON.stringify(filePaths || []), callbackName);
+            } catch (e) {
+                delete window[callbackName];
+                reject(e);
+            }
+        });
+    },
+
+    loadProfile(userId) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) {
+                reject(new Error("Bridge not ready"));
+                return;
+            }
+
+            const fn = javaBridge.loadProfile || javaBridge.getProfile;
+            if (typeof fn !== "function") {
+                reject(new Error("loadProfile/getProfile not available"));
+                return;
+            }
+
+            const callbackName = "_profileCallback_" + Date.now();
+            window[callbackName] = function (responseJson) {
+                delete window[callbackName];
+                try {
+                    const response = JSON.parse(responseJson);
+                    if (response && response.error) reject(new Error(response.error));
+                    else resolve(response);
+                } catch (e) {
+                    reject(e);
+                }
+            };
+
+            try {
+                if (fn === javaBridge.getProfile) fn.call(javaBridge, callbackName);
+                else fn.call(javaBridge, userId, callbackName);
+            } catch (e) {
+                delete window[callbackName];
+                reject(e);
+            }
+        });
+    },
+
+    joinByInvite(inviteCode) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) {
+                reject(new Error("Bridge not ready"));
+                return;
+            }
+
+            const fn = javaBridge.joinByInvite || javaBridge.joinByCode || javaBridge.sendInvite;
+            if (typeof fn !== "function") {
+                reject(new Error("join method not available"));
+                return;
+            }
+
+            const callbackName = "_inviteCallback_" + Date.now();
+            window[callbackName] = function (responseJson) {
+                delete window[callbackName];
+                try {
+                    const response = JSON.parse(responseJson);
+                    if (response && response.success) resolve(response);
+                    else reject(new Error((response && (response.message || response.error)) || "Join failed"));
+                } catch (e) {
+                    reject(e);
+                }
+            };
+
+            try {
+                fn.call(javaBridge, inviteCode, callbackName);
+            } catch (e) {
+                delete window[callbackName];
+                reject(e);
+            }
+        });
     }
 };
 
-// ==================== CALLBACKS GLOBALES ====================
-// Estos son llamados desde Java cuando hay eventos
+/* Global callbacks */
 
-window.onMessageReceived = function(messageJson) {
+window.onMessageReceived = function (messageJson) {
     try {
         const message = JSON.parse(messageJson);
-        if (typeof Chat !== 'undefined' && Chat.onMessageReceived) {
-            Chat.onMessageReceived(message);
-        }
+        if (typeof Chat !== "undefined" && Chat.onMessageReceived) Chat.onMessageReceived(message);
     } catch (e) {
-        console.error('Error parsing message:', e);
+        console.error("Error parsing message:", e);
     }
 };
 
-window.onTypingReceived = function(typingJson) {
+window.onTypingReceived = function (typingJson) {
     try {
         const data = JSON.parse(typingJson);
-        if (typeof Chat !== 'undefined' && Chat.onTypingReceived) {
-            Chat.onTypingReceived(data);
-        }
+        if (typeof Chat !== "undefined" && Chat.onTypingReceived) Chat.onTypingReceived(data);
     } catch (e) {
-        console.error('Error parsing typing:', e);
+        console.error("Error parsing typing:", e);
     }
 };
 
-window.onConnectionStatusChanged = function(connected) {
-    const isConnected = connected === 'true' || connected === true;
-    if (typeof Chat !== 'undefined' && Chat.onConnectionStatusChanged) {
+window.onConnectionStatusChanged = function (connected) {
+    const isConnected = connected === "true" || connected === true;
+    if (typeof Chat !== "undefined" && Chat.onConnectionStatusChanged) {
         Chat.onConnectionStatusChanged(isConnected);
     }
 };
+
+window.addEventListener("load", () => {
+    Bridge.whenReady(() => console.log("Bridge listo"));
+});

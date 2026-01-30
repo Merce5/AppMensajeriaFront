@@ -1,6 +1,6 @@
 package com.appmsg.front.appmensajeriafront.ui.login;
 
-import com.appmsg.front.appmensajeriafront.service.WebViewManager;
+import com.appmsg.front.appmensajeriafront.webview.WebViewManager;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebView;
 
