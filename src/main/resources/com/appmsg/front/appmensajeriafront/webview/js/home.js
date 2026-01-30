@@ -75,7 +75,7 @@ const Home = {
             ? `<span class="chat-item-unread">${chat.unreadBadge}</span>` : "";
 
         return `
-            <div class="chat-item" onclick="Home.openChat('${chat._id.toString()}')">
+            <div class="chat-item" onclick="Home.openChat('${chat.id}')">
                 <div class="chat-item-avatar">
                     ${chat.image
                         ? `<img src="${chat.image}" alt="${chat.name}">`
@@ -107,11 +107,11 @@ const Home = {
         // Guardar chatId y navegar al chat
         if (typeof Bridge !== 'undefined') {
             Bridge.log('Opening chat: ' + chatId);
+            Bridge.setChatId(chatId); // <-- AÑADIDO: Guardar el ID en la sesión
         }
 
         // Actualizar params para que el chat sepa cual abrir
         if (typeof loadPage === 'function') {
-            // Guardar chatId en sesion via bridge si es posible
             loadPage('chat');
         }
     },

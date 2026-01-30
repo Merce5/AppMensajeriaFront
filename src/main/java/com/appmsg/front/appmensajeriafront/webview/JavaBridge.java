@@ -62,6 +62,13 @@ public class JavaBridge {
     }
 
     /**
+     * Guarda el chatId actual en la sesion.
+     */
+    public void setChatId(String chatId) {
+        Session.setChatId(chatId);
+    }
+
+    /**
      * Obtiene los parámetros de inicialización como JSON.
      */
     public String getInitParams() {

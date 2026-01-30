@@ -30,6 +30,11 @@ const Bridge = {
         return javaBridge.getChatId();
     },
 
+    setChatId: function(chatId) {
+        if (!this.isReady()) return;
+        javaBridge.setChatId(chatId);
+    },
+
     getInitParams: function() {
         if (!this.isReady()) return {};
         try {

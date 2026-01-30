@@ -12,22 +12,30 @@ const Chat = {
     // ==================== INICIALIZACION ====================
 
     init: function() {
-        this.userId = Bridge.getUserId();
-        this.chatId = Bridge.getChatId();
+        javaBridge.log("Initializing Chat view");
+
+        this.userId = javaBridge.getUserId();
+        this.chatId = javaBridge.getChatId();
 
         if (!this.chatId) {
             console.error('No chatId provided');
+            javaBridge.log('No chatId provided, cannot initialize chat');
             return;
         }
 
+        javaBridge.log('User ID: ' + this.userId);
+        javaBridge.log('Chat ID: ' + this.chatId);
+
         // Conectar al WebSocket
-        Bridge.connectToChat(this.chatId);
+        javaBridge.connectToChat(this.chatId);
+
+        javaBridge.log('Connected to chat: ' + this.chatId);
 
         // Setup
         this.setupEventListeners();
         this.loadMessages();
 
-        Bridge.log('Chat initialized: ' + this.chatId);
+        javaBridge.log('Chat initialized: ' + this.chatId);
     },
 
     setupEventListeners: function() {
