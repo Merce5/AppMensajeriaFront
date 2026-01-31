@@ -20,10 +20,8 @@ const Settings = {
             if (window.settingsBridge) settingsBridge.setDarkMode(e.target.checked);
         });
 
-        Bridge.whenReady(() => {
-            this.setStatus("Cargando ajustes...");
-            settingsBridge.loadSettings();
-        });
+        this.setStatus("Cargando ajustes...");
+        settingsBridge.loadSettings();
     },
 
     setStatus: function (msg) {
@@ -79,4 +77,4 @@ function onSettingsError(errJsonString) {
     }
 }
 
-window.addEventListener("load", () => Settings.init());
+Bridge.whenReady(() => Settings.init());

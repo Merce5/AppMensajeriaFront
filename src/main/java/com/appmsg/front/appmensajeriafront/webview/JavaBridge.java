@@ -65,6 +65,14 @@ public class JavaBridge {
         }
     }
 
+    public String getChatId() {
+        return Session.getChatId();
+    }
+
+    public void setChatId(String chatId) {
+        Session.setChatId(chatId);
+    }
+
     // ===== Auth =====
 
     public void tryToLogin(String username, String password) throws IOException, InterruptedException {
@@ -76,7 +84,9 @@ public class JavaBridge {
         }
 
         Session.setUserId(loginResult.getUserId());
-        chatController.loadIndex();
+//        chatController.loadIndex();
+        navigate("main.html");
+//        navigate("home.html");
     }
 
     // ===== Chat (WS) =====

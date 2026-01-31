@@ -8,26 +8,37 @@ const Chat = {
     isTyping: false,
     userId: null,
     chatId: null,
+    initialized: false,
 
     // ==================== INICIALIZACION ====================
 
     init: function() {
+        Bridge.log("Initializing Chat view");
+
         this.userId = Bridge.getUserId();
         this.chatId = Bridge.getChatId();
 
         if (!this.chatId) {
             console.error('No chatId provided');
+            Bridge.log('No chatId provided, cannot initialize chat');
             return;
         }
 
+        Bridge.log('User ID: ' + this.userId);
+        Bridge.log('Chat ID: ' + this.chatId);
+
         // Conectar al WebSocket
         Bridge.connectToChat(this.chatId);
+
+        Bridge.log('Connected to chat: ' + this.chatId);
 
         // Setup
         this.setupEventListeners();
         this.loadMessages();
 
         Bridge.log('Chat initialized: ' + this.chatId);
+
+        this.initialized = true;
     },
 
     setupEventListeners: function() {
@@ -284,9 +295,7 @@ const Chat = {
 
     openProfile: function() {
         // Navegar a la vista de perfil
-        if (typeof loadPage === 'function') {
-            loadPage('profile');
-        }
+        Bridge.navigate('profile.html');
     },
 
     openMedia: function(url) {
@@ -303,4 +312,7 @@ const Chat = {
 };
 
 // Inicializar cuando el bridge este listo
-Bridge.whenReady(() => Chat.init());
+Bridge.whenReady(() => {
+    Bridge.log("Chat page initialized");
+    Chat.init()
+});

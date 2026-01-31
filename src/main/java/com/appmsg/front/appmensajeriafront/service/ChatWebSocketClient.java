@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  */
 public class ChatWebSocketClient implements WebSocket.Listener {
 
-    private static final String WS_BASE_URL = "ws://localhost:8080/APPMensajeriaUEM/chat";
+    private static final String WS_BASE_URL = "ws://localhost:8080/APPMensajeriaUEM_war_exploded/chat";
 
     private final Gson gson;
     private final HttpClient httpClient;

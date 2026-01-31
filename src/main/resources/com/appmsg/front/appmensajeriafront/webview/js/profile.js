@@ -81,11 +81,7 @@ const Profile = {
 
     startChat: function() {
         // Volver al chat o iniciar uno nuevo
-        if (typeof goBack === 'function') {
-            goBack();
-        } else if (typeof loadPage === 'function') {
-            loadPage('chat');
-        }
+        goBack();
     }
 };
 

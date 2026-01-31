@@ -53,12 +53,12 @@ const Invite = {
 
             // Navegar al chat despues de un momento
             setTimeout(() => {
-                if (response.chatId && typeof loadPage === 'function') {
+                if (response.chatId) {
                     // Actualizar el chatId en sesion si es posible
                     Bridge.log('Joined chat: ' + response.chatId);
-                    loadPage('chat');
-                } else if (typeof goBack === 'function') {
-                    goBack();
+                    Bridge.navigate('chat.html');
+                } else {
+                    Bridge.navigate('main.html');
                 }
             }, 1500);
 

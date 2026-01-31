@@ -1,50 +1,67 @@
-<div class="home-container">
-    <!-- Header -->
-    <header class="home-header">
-        <h1>Mensajeria UEM</h1>
-        <button class="btn-icon" onclick="loadPage('settings')" title="Ajustes">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-            </svg>
-        </button>
-    </header>
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AppMensajería</title>
 
-    <!-- Acciones rapidas -->
-    <div class="quick-actions">
-        <button class="action-card" onclick="loadPage('invite')">
-            <div class="action-icon">
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/home.css" />
+</head>
+<body>
+    <div class="home-container">
+        <!-- Header -->
+        <header class="home-header">
+            <h1>Mensajeria UEM</h1>
+            <button class="btn-icon" onclick="Bridge.navigate('settings.html')" title="Ajustes">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-                    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Acciones rapidas -->
+        <div class="quick-actions">
+            <button class="action-card" onclick="Bridge.navigate('invite.html')">
+                <div class="action-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                    </svg>
+                </div>
+                <span>Unirse con enlace</span>
+            </button>
+        </div>
+
+        <!-- Lista de chats -->
+        <div class="chats-section">
+            <h2>Chats recientes</h2>
+            <div id="chats-list" class="chats-list">
+                <div class="loading-chats">
+                    <div class="spinner"></div>
+                    <p>Cargando chats...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado sin chats -->
+        <div id="empty-state" class="empty-state hidden">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
                 </svg>
             </div>
-            <span>Unirse con enlace</span>
-        </button>
-    </div>
-
-    <!-- Lista de chats -->
-    <div class="chats-section">
-        <h2>Chats recientes</h2>
-        <div id="chats-list" class="chats-list">
-            <div class="loading-chats">
-                <div class="spinner"></div>
-                <p>Cargando chats...</p>
-            </div>
+            <h3>No tienes chats</h3>
+            <p>Unete a un chat con un enlace de invitacion</p>
+            <button class="btn-primary" onclick="Bridge.navigate('invite.html')">
+                Unirse con enlace
+            </button>
         </div>
     </div>
 
-    <!-- Estado sin chats -->
-    <div id="empty-state" class="empty-state hidden">
-        <div class="empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-            </svg>
-        </div>
-        <h3>No tienes chats</h3>
-        <p>Unete a un chat con un enlace de invitacion</p>
-        <button class="btn-primary" onclick="loadPage('invite')">
-            Unirse con enlace
-        </button>
-    </div>
-</div>
+    <script src="js/bridge.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/home.js"></script>
+</body>
+</html>

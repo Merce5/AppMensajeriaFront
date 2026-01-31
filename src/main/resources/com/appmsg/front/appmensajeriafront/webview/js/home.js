@@ -31,7 +31,7 @@ const Home = {
         try {
             const userId = await javaBridge.getUserId();
             javaBridge.log('Fetching chats for user: ' + userId);
-            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM/api';
+            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM_war_exploded/api';
             const response = await fetch(`${BASE_URL}/chats?userId=${userId}`, {
                 method: 'GET',
                 headers: {
@@ -105,15 +105,8 @@ const Home = {
 
     openChat: function(chatId) {
         // Guardar chatId y navegar al chat
-        if (typeof Bridge !== 'undefined') {
-            Bridge.log('Opening chat: ' + chatId);
-            Bridge.setChatId(chatId); // <-- AÑADIDO: Guardar el ID en la sesión
-        }
-
-        // Actualizar params para que el chat sepa cual abrir
-        if (typeof loadPage === 'function') {
-            loadPage('chat');
-        }
+        Bridge.setChatId(chatId);
+        Bridge.navigate('chat.html');
     },
 
     getInitials: function(name) {
@@ -134,4 +127,7 @@ const Home = {
 };
 
 // Inicializar
-Bridge.whenReady(() => Home.init());
+Bridge.whenReady(() => {
+    Bridge.log('Home page initialized');
+    Home.init()
+});
