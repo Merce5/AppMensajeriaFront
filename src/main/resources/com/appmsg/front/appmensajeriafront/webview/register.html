@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+</head>
+
+<body>
+<div class="auth-wrap">
+    <div class="auth-card login-box">
+        <h2>Login</h2>
+        <p class="muted" style="margin: 0 0 12px 0;">Introduce un correo y una contraseña para continuar</p>
+
+        <div class="field">
+            <label for="username-register">Usuario</label>
+            <input class="input" type="text" id="username-register" placeholder="Usuario" autocomplete="username">
+        </div>
+
+        <div style="height: 12px;"></div>
+
+        <div class="field">
+            <label for="password-register">Contraseña</label>
+            <input class="input" type="password" id="password-register" placeholder="Contraseña" autocomplete="current-password">
+        </div>
+
+        <div class="auth-actions">
+            <button class="btn btn-primary" type="button" onclick="Login.register()">Registrarse</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="js/bridge.js"></script>
+<script type="text/javascript" src="js/login.js"></script>
+</body>
+</html>
