@@ -29,9 +29,9 @@ const Home = {
 
     refresh: async function() {
         try {
-            const userId = await javaBridge.getUserId();
-            javaBridge.log('Fetching chats for user: ' + userId);
-            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM/api';
+            const userId = await Bridge.getUserId();
+            Bridge.log('Fetching chats for user: ' + userId);
+            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM_war_exploded/api';
             const response = await fetch(`${BASE_URL}/chats?userId=${userId}`, {
                 method: 'GET',
                 headers: {
@@ -40,17 +40,17 @@ const Home = {
             });
 
             if (!response.ok) {
-                javaBridge.log(`HTTP error! status: ${response.status}`);
+                Bridge.log(`HTTP error! status: ${response.status}`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            javaBridge.log('Chats fetched successfully');
+            Bridge.log('Chats fetched successfully');
 
             const chats = await response.json();
             this.renderChats(chats);
 
         } catch (error) {
-            javaBridge.log('Error loading chats: ' + error);
+            Bridge.log('Error loading chats: ' + error);
             this.showEmptyState();
         }
     },
@@ -105,15 +105,8 @@ const Home = {
 
     openChat: function(chatId) {
         // Guardar chatId y navegar al chat
-        if (typeof Bridge !== 'undefined') {
-            Bridge.log('Opening chat: ' + chatId);
-            Bridge.setChatId(chatId); // <-- AÑADIDO: Guardar el ID en la sesión
-        }
-
-        // Actualizar params para que el chat sepa cual abrir
-        if (typeof loadPage === 'function') {
-            loadPage('chat');
-        }
+        Bridge.setChatId(chatId);
+        Bridge.navigate('chat.html');
     },
 
     getInitials: function(name) {
@@ -134,4 +127,7 @@ const Home = {
 };
 
 // Inicializar
-Bridge.whenReady(() => Home.init());
+Bridge.whenReady(() => {
+    Bridge.log('Home page initialized');
+    Home.init()
+});

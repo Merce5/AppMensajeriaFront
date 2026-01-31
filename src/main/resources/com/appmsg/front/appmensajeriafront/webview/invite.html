@@ -1,50 +1,67 @@
-<div class="invite-container">
-    <!-- Header -->
-    <header class="invite-header">
-        <button class="btn-icon" onclick="goBack()" title="Volver">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-        </button>
-        <h1>Unirse a un chat</h1>
-    </header>
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Unirse a un chat - AppMensajería</title>
 
-    <!-- Contenido -->
-    <main class="invite-content">
-        <!-- Preview del chat (se muestra cuando se valida el codigo) -->
-        <div id="invite-preview" class="invite-preview hidden">
-            <img id="preview-avatar" class="invite-preview-avatar" src="" alt="">
-            <span id="preview-name" class="invite-preview-name"></span>
-            <span id="preview-members" class="invite-preview-members"></span>
-        </div>
-
-        <!-- Formulario -->
-        <div class="invite-form">
-            <label for="invite-code">Codigo de invitacion</label>
-            <input type="text"
-                   id="invite-code"
-                   class="input-field"
-                   placeholder="ABC123DEF456"
-                   autocomplete="off"
-                   maxlength="20"
-                   onkeypress="Invite.handleKeyPress(event)">
-
-            <!-- Mensajes -->
-            <div id="invite-error" class="invite-message error hidden"></div>
-            <div id="invite-success" class="invite-message success hidden"></div>
-
-            <button id="join-btn" class="btn btn-primary" onclick="Invite.join()">
-                Unirse al chat
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/invite.css" />
+</head>
+<body>
+    <div class="invite-container">
+        <!-- Header -->
+        <header class="invite-header">
+            <button class="btn-icon" onclick="Bridge.goBack()" title="Volver">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
             </button>
-        </div>
+            <h1>Unirse a un chat</h1>
+        </header>
 
-        <!-- Info -->
-        <div class="invite-info">
-            <div class="invite-info-title">Como funciona</div>
-            <p class="invite-info-text">
-                Pega el codigo de invitacion que te han compartido para unirte a un grupo de chat.
-                Los codigos tienen el formato: ABC123DEF456
-            </p>
-        </div>
-    </main>
-</div>
+        <!-- Contenido -->
+        <main class="invite-content">
+            <!-- Preview del chat (se muestra cuando se valida el codigo) -->
+            <div id="invite-preview" class="invite-preview hidden">
+                <img id="preview-avatar" class="invite-preview-avatar" src="" alt="">
+                <span id="preview-name" class="invite-preview-name"></span>
+                <span id="preview-members" class="invite-preview-members"></span>
+            </div>
+
+            <!-- Formulario -->
+            <div class="invite-form">
+                <label for="invite-code">Codigo de invitacion</label>
+                <input type="text"
+                       id="invite-code"
+                       class="input-field"
+                       placeholder="ABC123DEF456"
+                       autocomplete="off"
+                       maxlength="20"
+                       onkeypress="Invite.handleKeyPress(event)">
+
+                <!-- Mensajes -->
+                <div id="invite-error" class="invite-message error hidden"></div>
+                <div id="invite-success" class="invite-message success hidden"></div>
+
+                <button id="join-btn" class="btn btn-primary" onclick="Invite.join()">
+                    Unirse al chat
+                </button>
+            </div>
+
+            <!-- Info -->
+            <div class="invite-info">
+                <div class="invite-info-title">Como funciona</div>
+                <p class="invite-info-text">
+                    Pega el codigo de invitacion que te han compartido para unirte a un grupo de chat.
+                    Los codigos tienen el formato: ABC123DEF456
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/bridge.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/invite.js"></script>
+</body>
+</html>

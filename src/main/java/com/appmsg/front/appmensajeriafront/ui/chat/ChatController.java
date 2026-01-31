@@ -55,9 +55,8 @@ public class ChatController {
         Map<String, String> params = new HashMap<>();
         params.put("chatId", chatId);
         params.put("userId", Session.getUserId());
-        params.put("page", "chat");
 
-        webViewManager.initialize("index.html", params);
+        webViewManager.initialize("chat.html", params);
     }
 
     /**
@@ -66,9 +65,8 @@ public class ChatController {
     public void openProfile(String userId) {
         Map<String, String> params = new HashMap<>();
         params.put("profileUserId", userId);
-        params.put("page", "profile");
 
-        webViewManager.initialize("index.html", params);
+        webViewManager.initialize("profile.html", params);
     }
 
     /**
@@ -76,9 +74,8 @@ public class ChatController {
      */
     public void openInvite() {
         Map<String, String> params = new HashMap<>();
-        params.put("page", "invite");
 
-        webViewManager.initialize("index.html", params);
+        webViewManager.initialize("invite.html", params);
     }
 
     /**

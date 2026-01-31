@@ -1,10 +1,7 @@
 package com.appmsg.front.appmensajeriafront.webview;
 
+import com.appmsg.front.appmensajeriafront.model.*;
 import com.appmsg.front.appmensajeriafront.service.LoginService;
-import com.appmsg.front.appmensajeriafront.model.InviteResponse;
-import com.appmsg.front.appmensajeriafront.model.UploadResponse;
-import com.appmsg.front.appmensajeriafront.model.UserDto;
-import com.appmsg.front.appmensajeriafront.model.UserProfile;
 import com.appmsg.front.appmensajeriafront.service.ChatWebSocketClient;
 import com.appmsg.front.appmensajeriafront.service.FileUploadService;
 import com.appmsg.front.appmensajeriafront.service.InviteService;
@@ -68,17 +65,28 @@ public class JavaBridge {
         }
     }
 
+    public String getChatId() {
+        return Session.getChatId();
+    }
+
+    public void setChatId(String chatId) {
+        Session.setChatId(chatId);
+    }
+
     // ===== Auth =====
 
     public void tryToLogin(String username, String password) throws IOException, InterruptedException {
         var user = new UserDto(username, password);
-        var loginResult = gateway.login(user);
+        LoginRS loginResult = gateway.login(user);
         if (loginResult.getUserId() == null) {
             // todo
             return;
         }
+
         Session.setUserId(loginResult.getUserId());
-        chatController.loadIndex();
+//        chatController.loadIndex();
+        navigate("main.html");
+//        navigate("home.html");
     }
 
     public void register(String username, String password) throws IOException, InterruptedException {
@@ -248,22 +256,8 @@ public class JavaBridge {
             return;
         }
 
-        // Si no, asumimos "ruta SPA" dentro de index
-        navigateTo(page);
-    }
-
-    public void navigateTo(String spaPageName) {
-        Platform.runLater(() ->
-                webEngine.executeScript(
-                        "if(typeof loadPage === 'function') { loadPage('" + escape(spaPageName) + "'); }"
-                )
-        );
-    }
-
-    public void goBack() {
-        Platform.runLater(() ->
-                webEngine.executeScript("if(typeof goBack === 'function') { goBack(); }")
-        );
+        // Si no, asumimos "ruta SPA" dentro de index y cargamos el html
+        Platform.runLater(() -> pageLoader.load(page + ".html"));
     }
 
     // ===== Log =====

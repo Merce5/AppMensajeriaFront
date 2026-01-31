@@ -49,6 +49,13 @@ const Bridge = {
         }
     },
 
+    setChatId(chatId) {
+        if (!this.isReady()) return;
+        const fn = javaBridge.setChatId;
+        if (typeof fn !== "function") return;
+        try { fn.call(javaBridge, chatId); } catch (_) {}
+    },
+
     tryToLogin(username, password) {
         if (!this.isReady()) return;
         if (typeof javaBridge.tryToLogin === "function") {
@@ -79,23 +86,12 @@ const Bridge = {
 
         if (typeof javaBridge.navigate === "function") {
             javaBridge.navigate(page);
-            return;
         }
-        if (typeof javaBridge.navigateTo === "function") {
-            javaBridge.navigateTo(page);
-            return;
-        }
-
-        if (typeof window.loadPage === "function") window.loadPage(page);
     },
 
     goBack() {
-        if (typeof window.goBack === "function") {
-            window.goBack();
-            return;
-        }
-        if (this.isReady() && typeof javaBridge.goBack === "function") {
-            javaBridge.goBack();
+        if (this.isReady() && typeof javaBridge.navigate === "function") {
+            javaBridge.navigate('main.html');
         }
     },
 
@@ -270,6 +266,4 @@ window.onConnectionStatusChanged = function (connected) {
     }
 };
 
-window.addEventListener("load", () => {
-    Bridge.whenReady(() => console.log("Bridge listo"));
-});
+
