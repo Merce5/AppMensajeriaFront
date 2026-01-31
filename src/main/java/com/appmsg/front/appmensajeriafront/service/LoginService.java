@@ -9,12 +9,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 public class LoginService {
 
     private HttpClient httpClient;
 
-    private final String BASE_URL = "http://localhost:8080/api";
+    private static final String BASE_PATH = "/api";
 
     private static final Gson gson = new Gson();
 
@@ -25,10 +26,10 @@ public class LoginService {
     public LoginRS login(UserDto user) throws IOException, InterruptedException {
         var request = gson.toJson(user);
         var httpRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/login"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(request))
-                .build();
+            .uri(URI.create(ApiConfig.BASE_API_URL + BASE_PATH + "/login"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(request))
+            .build();
 
         HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
@@ -38,10 +39,10 @@ public class LoginService {
     public void register(UserDto user) throws IOException, InterruptedException {
         var request = gson.toJson(user);
         var httpRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/register"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(request))
-                .build();
+            .uri(URI.create(ApiConfig.BASE_API_URL + BASE_PATH + "/register"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(request))
+            .build();
 
         HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
@@ -50,8 +51,9 @@ public class LoginService {
     }
 
     public void verifyRegister(String code) throws IOException, InterruptedException {
+
         var httpRequest = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/register?verificationCode=" + code))
+                .uri(URI.create(ApiConfig.BASE_API_URL + BASE_PATH + "/register?verificationCode=" + code))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();

@@ -6,15 +6,16 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 public class SettingsService {
     private final Gson gson = new Gson();
 
-    // TODO: poner URL real del backend (host, puerto, contexto)
-    private final String baseUrl = "http://localhost:8080/TU_APP/api/settings"; // <-- CAMBIAR
+    private static final String SETTINGS_PATH = "/api/settings";
 
     public UserSettingsDto getSettings(String userId) throws Exception {
-        URL url = new URL(baseUrl + "?userId=" + userId);
+        String urlStr = ApiConfig.BASE_API_URL + SETTINGS_PATH + "?userId=" + userId;
+        URL url = new URL(urlStr);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("Accept", "application/json");
@@ -28,7 +29,8 @@ public class SettingsService {
     }
 
     public UserSettingsDto saveSettings(UserSettingsDto dto) throws Exception {
-        URL url = new URL(baseUrl);
+        String urlStr = ApiConfig.BASE_API_URL + SETTINGS_PATH;
+        URL url = new URL(urlStr);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setDoOutput(true);

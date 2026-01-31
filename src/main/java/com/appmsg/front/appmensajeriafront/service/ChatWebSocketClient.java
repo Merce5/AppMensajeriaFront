@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class ChatWebSocketClient implements WebSocket.Listener {
 
-    private static final String WS_BASE_URL = "ws://localhost:8080/APPMensajeriaUEM/chat";
+    private static final String WS_PATH = "/chat";
 
     private final Gson gson;
     private final HttpClient httpClient;
@@ -40,7 +41,9 @@ public class ChatWebSocketClient implements WebSocket.Listener {
      * Conecta al WebSocket del chat.
      */
     public void connect(String chatId, String userId) {
-        String wsUrl = WS_BASE_URL + "/" + chatId + "/" + userId;
+        // Construir la URL WebSocket usando la base del backend
+        String wsBase = ApiConfig.BASE_API_URL.replace("http", "ws");
+        String wsUrl = wsBase + WS_PATH + "/" + chatId + "/" + userId;
 
         try {
             httpClient.newWebSocketBuilder()

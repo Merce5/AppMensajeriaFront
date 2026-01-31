@@ -9,13 +9,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 /**
  * Servicio para obtener perfiles de usuario.
  */
 public class ProfileService {
 
-    private static final String PROFILE_URL = "http://localhost:8080/APPMensajeriaUEM/api/profile";
+    private static final String PROFILE_PATH = "/api/profile";
 
     private final Gson gson;
 
@@ -27,7 +28,7 @@ public class ProfileService {
      * Obtiene el perfil de un usuario por ID.
      */
     public UserProfile getProfile(String userId) throws Exception {
-        String urlStr = PROFILE_URL + "?userId=" + URLEncoder.encode(userId, "UTF-8");
+        String urlStr = ApiConfig.BASE_API_URL + PROFILE_PATH + "?userId=" + URLEncoder.encode(userId, "UTF-8");
         URL url = new URL(urlStr);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -51,7 +52,7 @@ public class ProfileService {
      * Obtiene el perfil de un usuario por username.
      */
     public UserProfile getProfileByUsername(String username) throws Exception {
-        String urlStr = PROFILE_URL + "?username=" + URLEncoder.encode(username, "UTF-8");
+        String urlStr = ApiConfig.BASE_API_URL + PROFILE_PATH + "?username=" + URLEncoder.encode(username, "UTF-8");
         URL url = new URL(urlStr);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

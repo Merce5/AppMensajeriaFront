@@ -10,13 +10,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 /**
  * Servicio para manejar invitaciones a chats.
  */
 public class InviteService {
 
-    private static final String INVITE_URL = "http://localhost:8080/APPMensajeriaUEM/api/invite";
+    private static final String INVITE_PATH = "/api/invite";
 
     private final Gson gson;
 
@@ -28,7 +29,8 @@ public class InviteService {
      * Une al usuario a un chat mediante código de invitación.
      */
     public InviteResponse joinByCode(String inviteCode, String userId) throws Exception {
-        URL url = new URL(INVITE_URL);
+        String urlStr = ApiConfig.BASE_API_URL + INVITE_PATH;
+        URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setDoOutput(true);
@@ -71,7 +73,8 @@ public class InviteService {
      * Obtiene información de un enlace de invitación.
      */
     public JsonObject getInviteInfo(String inviteCode) throws Exception {
-        URL url = new URL(INVITE_URL + "?code=" + inviteCode);
+        String urlStr = ApiConfig.BASE_API_URL + INVITE_PATH;
+        URL url = new URL(urlStr + "?code=" + inviteCode);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setRequestMethod("GET");

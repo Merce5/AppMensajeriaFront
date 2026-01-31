@@ -8,13 +8,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 /**
  * Servicio para subir archivos al backend.
  */
 public class FileUploadService {
 
-    private static final String UPLOAD_URL = "http://localhost:8080/APPMensajeriaUEM/api/upload";
+    private static final String UPLOAD_PATH = "/api/upload";
     private static final String BOUNDARY = "----WebKitFormBoundary" + System.currentTimeMillis();
     private static final String LINE_FEED = "\r\n";
 
@@ -28,7 +29,8 @@ public class FileUploadService {
      * Sube una lista de archivos al servidor.
      */
     public UploadResponse uploadFiles(List<File> files) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
+        String urlStr = ApiConfig.BASE_API_URL + UPLOAD_PATH;
+        HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
 
         conn.setUseCaches(false);
         conn.setDoOutput(true);
