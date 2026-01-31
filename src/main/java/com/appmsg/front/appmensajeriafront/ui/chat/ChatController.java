@@ -18,6 +18,15 @@ public class ChatController {
 
     private WebViewManager webViewManager;
 
+    public ChatController(WebViewManager manager) {
+        this.webViewManager = manager;
+        this.webView = manager.getWebView();
+    }
+
+    public ChatController() {
+        // CDI
+    }
+
     @FXML
     public void initialize() {
         webViewManager = new WebViewManager(webView);
@@ -29,7 +38,7 @@ public class ChatController {
     public void loadIndex() {
         Map<String, String> params = new HashMap<>();
         params.put("userId", Session.getUserId());
-        webViewManager.initialize("index.html", params);
+        webViewManager.initialize("main.html", params);
     }
 
     /**

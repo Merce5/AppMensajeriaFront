@@ -47,7 +47,7 @@ public class WebViewManager implements PageLoader {
     public void initialize(String htmlPage, Map<String, String> params) {
         this.initParams = (params != null) ? params : new HashMap<>();
 
-        this.bridge = new JavaBridge(webEngine, initParams, this);
+        this.bridge = new JavaBridge(this, initParams, this);
 
         this.settingsBridge = new SettingsBridge(webEngine, this::getWindow);
 
@@ -66,7 +66,7 @@ public class WebViewManager implements PageLoader {
 
     private void injectBridges() {
         if (bridge == null) {
-            bridge = new JavaBridge(webEngine, initParams, this);
+            bridge = new JavaBridge(this, initParams, this);
         }
         if (settingsBridge == null) {
             settingsBridge = new SettingsBridge(webEngine, this::getWindow);

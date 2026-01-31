@@ -14,8 +14,6 @@ window.onLoginResult = function (result) {
     if (data && data.ok) {
         console.log("Login OK, userId:", data.userId);
 
-        Bridge.navigate("main.html");
-
     } else {
         alert("Usuario o contraseña incorrectos");
     }
