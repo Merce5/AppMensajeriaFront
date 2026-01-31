@@ -29,8 +29,8 @@ const Home = {
 
     refresh: async function() {
         try {
-            const userId = await javaBridge.getUserId();
-            javaBridge.log('Fetching chats for user: ' + userId);
+            const userId = await Bridge.getUserId();
+            Bridge.log('Fetching chats for user: ' + userId);
             const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM_war_exploded/api';
             const response = await fetch(`${BASE_URL}/chats?userId=${userId}`, {
                 method: 'GET',
@@ -40,17 +40,17 @@ const Home = {
             });
 
             if (!response.ok) {
-                javaBridge.log(`HTTP error! status: ${response.status}`);
+                Bridge.log(`HTTP error! status: ${response.status}`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            javaBridge.log('Chats fetched successfully');
+            Bridge.log('Chats fetched successfully');
 
             const chats = await response.json();
             this.renderChats(chats);
 
         } catch (error) {
-            javaBridge.log('Error loading chats: ' + error);
+            Bridge.log('Error loading chats: ' + error);
             this.showEmptyState();
         }
     },
