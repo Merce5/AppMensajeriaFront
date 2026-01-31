@@ -32,7 +32,33 @@ public class LoginService {
 
         HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-        var login = gson.fromJson(response.body(), LoginRS.class);
-        return login;
+        return gson.fromJson(response.body(), LoginRS.class);
+    }
+
+    public void register(UserDto user) throws IOException, InterruptedException {
+        var request = gson.toJson(user);
+        var httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/register"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(request))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new IOException("Failed : HTTP error code : " + response.statusCode());
+        }
+    }
+
+    public void verifyRegister(String code) throws IOException, InterruptedException {
+        var httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/register?verificationCode=" + code))
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new IOException("Failed : HTTP error code : " + response.statusCode());
+        }
     }
 }

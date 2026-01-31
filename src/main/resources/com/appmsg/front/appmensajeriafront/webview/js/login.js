@@ -6,6 +6,17 @@ const Login = {
             document.getElementById("username").value,
             document.getElementById("password").value
         );
+    },
+    register: function () {
+        Bridge.register(
+            document.getElementById("username-register").value,
+            document.getElementById("password-register").value
+        )
+    },
+    verifyRegister: function () {
+        Bridge.verifyRegister(
+            document.getElementById("code").value
+        )
     }
 };
 

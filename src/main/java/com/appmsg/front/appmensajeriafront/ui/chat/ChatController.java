@@ -41,6 +41,11 @@ public class ChatController {
         webViewManager.initialize("main.html", params);
     }
 
+    public void loadVerification() {
+        Map<String, String> params = new HashMap<>();
+        webViewManager.initialize("verify-code.html", params);
+    }
+
     /**
      * Inicializa el chat con un chatId específico.
      */
