@@ -1,7 +1,9 @@
 package com.appmsg.front.appmensajeriafront.webview;
 
+import com.appmsg.front.appmensajeriafront.clients.HttpGateway;
 import com.appmsg.front.appmensajeriafront.model.InviteResponse;
 import com.appmsg.front.appmensajeriafront.model.UploadResponse;
+import com.appmsg.front.appmensajeriafront.model.UserDto;
 import com.appmsg.front.appmensajeriafront.model.UserProfile;
 import com.appmsg.front.appmensajeriafront.service.ChatWebSocketClient;
 import com.appmsg.front.appmensajeriafront.service.FileUploadService;
@@ -16,6 +18,7 @@ import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +38,7 @@ public class JavaBridge {
 
     private ChatWebSocketClient wsClient;
     private final PageLoader pageLoader;
+    private HttpGateway gateway;
 
     // constructor
     public JavaBridge(WebViewManager webViewManager, Map<String, String> initParams, PageLoader pageLoader) {
@@ -47,6 +51,7 @@ public class JavaBridge {
         this.inviteService = new InviteService();
         this.profileService = new ProfileService();
         this.chatController = new ChatController(webViewManager);
+        this.gateway = new HttpGateway();
     }
 
 
@@ -66,11 +71,14 @@ public class JavaBridge {
 
     // ===== Auth =====
 
-    public void tryToLogin(String username, String password) {
-        boolean ok = username != null && !username.isBlank()
-                && password != null && !password.isBlank();
-
-        Session.setUserId("69289da58faa962b96fe6fe1");
+    public void tryToLogin(String username, String password) throws IOException, InterruptedException {
+        var user = new UserDto(username, password);
+        var loginResult = gateway.login(user);
+        if (loginResult.getUserId() == null) {
+            // todo
+            return;
+        }
+        Session.setUserId(loginResult.getUserId());
         chatController.loadIndex();
     }
 
