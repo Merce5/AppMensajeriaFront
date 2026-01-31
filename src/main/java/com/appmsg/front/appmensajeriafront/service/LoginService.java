@@ -1,4 +1,4 @@
-package com.appmsg.front.appmensajeriafront.clients;
+package com.appmsg.front.appmensajeriafront.service;
 
 import com.appmsg.front.appmensajeriafront.model.LoginRS;
 import com.appmsg.front.appmensajeriafront.model.UserDto;
@@ -10,7 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class HttpGateway {
+public class LoginService {
 
     private HttpClient httpClient;
 
@@ -18,7 +18,7 @@ public class HttpGateway {
 
     private static final Gson gson = new Gson();
 
-    public HttpGateway() {
+    public LoginService() {
         httpClient = HttpClient.newHttpClient();
     }
 

@@ -1,6 +1,6 @@
 package com.appmsg.front.appmensajeriafront.webview;
 
-import com.appmsg.front.appmensajeriafront.clients.HttpGateway;
+import com.appmsg.front.appmensajeriafront.service.LoginService;
 import com.appmsg.front.appmensajeriafront.model.InviteResponse;
 import com.appmsg.front.appmensajeriafront.model.UploadResponse;
 import com.appmsg.front.appmensajeriafront.model.UserDto;
@@ -11,7 +11,6 @@ import com.appmsg.front.appmensajeriafront.service.InviteService;
 import com.appmsg.front.appmensajeriafront.service.ProfileService;
 import com.appmsg.front.appmensajeriafront.session.Session;
 import com.appmsg.front.appmensajeriafront.ui.chat.ChatController;
-import com.appmsg.front.appmensajeriafront.ui.login.LoginController;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
@@ -38,7 +37,7 @@ public class JavaBridge {
 
     private ChatWebSocketClient wsClient;
     private final PageLoader pageLoader;
-    private HttpGateway gateway;
+    private LoginService gateway;
 
     // constructor
     public JavaBridge(WebViewManager webViewManager, Map<String, String> initParams, PageLoader pageLoader) {
@@ -51,7 +50,7 @@ public class JavaBridge {
         this.inviteService = new InviteService();
         this.profileService = new ProfileService();
         this.chatController = new ChatController(webViewManager);
-        this.gateway = new HttpGateway();
+        this.gateway = new LoginService();
     }
 
 
