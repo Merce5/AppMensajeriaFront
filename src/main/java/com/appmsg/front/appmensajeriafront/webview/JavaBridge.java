@@ -235,22 +235,8 @@ public class JavaBridge {
             return;
         }
 
-        // Si no, asumimos "ruta SPA" dentro de index
-        navigateTo(page);
-    }
-
-    public void navigateTo(String spaPageName) {
-        Platform.runLater(() ->
-                webEngine.executeScript(
-                        "if(typeof loadPage === 'function') { loadPage('" + escape(spaPageName) + "'); }"
-                )
-        );
-    }
-
-    public void goBack() {
-        Platform.runLater(() ->
-                webEngine.executeScript("if(typeof goBack === 'function') { goBack(); }")
-        );
+        // Si no, asumimos "ruta SPA" dentro de index y cargamos el html
+        Platform.runLater(() -> pageLoader.load(page + ".html"));
     }
 
     // ===== Log =====

@@ -52,23 +52,12 @@ const Bridge = {
 
         if (typeof javaBridge.navigate === "function") {
             javaBridge.navigate(page);
-            return;
         }
-        if (typeof javaBridge.navigateTo === "function") {
-            javaBridge.navigateTo(page);
-            return;
-        }
-
-        if (typeof window.loadPage === "function") window.loadPage(page);
     },
 
     goBack() {
-        if (typeof window.goBack === "function") {
-            window.goBack();
-            return;
-        }
-        if (this.isReady() && typeof javaBridge.goBack === "function") {
-            javaBridge.goBack();
+        if (this.isReady() && typeof javaBridge.navigate === "function") {
+            javaBridge.navigate('main.html');
         }
     },
 
