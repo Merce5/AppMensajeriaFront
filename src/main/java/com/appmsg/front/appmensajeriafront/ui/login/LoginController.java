@@ -18,9 +18,10 @@ public class LoginController {
         webViewManager = new WebViewManager(webView);
     }
 
-    public void loadLogin() {
+    public void loadLogin(String username) {
         Map<String, String> params = new HashMap<>();
-        webViewManager.initialize("login.html", params);
+        params.put("userid", username);
+        webViewManager.initialize("index.html", params);
     }
 
     public void tryToLogin() {

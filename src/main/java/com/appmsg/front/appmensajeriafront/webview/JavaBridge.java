@@ -8,6 +8,8 @@ import com.appmsg.front.appmensajeriafront.service.FileUploadService;
 import com.appmsg.front.appmensajeriafront.service.InviteService;
 import com.appmsg.front.appmensajeriafront.service.ProfileService;
 import com.appmsg.front.appmensajeriafront.session.Session;
+import com.appmsg.front.appmensajeriafront.ui.chat.ChatController;
+import com.appmsg.front.appmensajeriafront.ui.login.LoginController;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
@@ -29,13 +31,14 @@ public class JavaBridge {
     private final FileUploadService uploadService;
     private final InviteService inviteService;
     private final ProfileService profileService;
+    private final ChatController chatController;
 
     private ChatWebSocketClient wsClient;
     private final PageLoader pageLoader;
 
     // constructor
-    public JavaBridge(WebEngine webEngine, Map<String, String> initParams, PageLoader pageLoader) {
-        this.webEngine = webEngine;
+    public JavaBridge(WebViewManager webViewManager, Map<String, String> initParams, PageLoader pageLoader) {
+        this.webEngine = webViewManager.getWebEngine();
         this.initParams = initParams;
         this.pageLoader = pageLoader;
         this.gson = new Gson();
@@ -43,6 +46,7 @@ public class JavaBridge {
         this.uploadService = new FileUploadService();
         this.inviteService = new InviteService();
         this.profileService = new ProfileService();
+        this.chatController = new ChatController(webViewManager);
     }
 
 
@@ -66,16 +70,8 @@ public class JavaBridge {
         boolean ok = username != null && !username.isBlank()
                 && password != null && !password.isBlank();
 
-        if (ok) {
-            Session.setUserId("123"); // mock
-        }
-
-        String json = "{ \"ok\": " + ok + ", \"userId\": \"123\" }";
-        Platform.runLater(() ->
-                webEngine.executeScript(
-                        "if (typeof onLoginResult === 'function') onLoginResult(" + json + ");"
-                )
-        );
+        Session.setUserId("69289da58faa962b96fe6fe1");
+        chatController.loadIndex();
     }
 
     // ===== Chat (WS) =====
