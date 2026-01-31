@@ -81,6 +81,17 @@ public class JavaBridge {
         chatController.loadIndex();
     }
 
+    public void register(String username, String password) throws IOException, InterruptedException {
+        var user = new UserDto(username, password);
+        gateway.register(user);
+        chatController.loadVerification();
+    }
+
+    public void verifyRegister(String verificationCode) throws IOException, InterruptedException {
+        gateway.verifyRegister(verificationCode);
+        chatController.loadIndex();
+    }
+
     // ===== Chat (WS) =====
 
     public void connectToChat(String chatId) {

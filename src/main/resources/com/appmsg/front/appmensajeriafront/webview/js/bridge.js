@@ -24,26 +24,53 @@ const Bridge = {
     log(message) {
         try {
             if (this.isReady() && typeof javaBridge.log === "function") javaBridge.log(message);
-        } catch (_) {}
+        } catch (_) {
+        }
         console.log(message);
     },
 
     getUserId() {
         if (!this.isReady() || typeof javaBridge.getUserId !== "function") return null;
-        try { return javaBridge.getUserId(); } catch (_) { return null; }
+        try {
+            return javaBridge.getUserId();
+        } catch (_) {
+            return null;
+        }
     },
 
     getChatId() {
         if (!this.isReady()) return null;
         const fn = javaBridge.getChatId;
         if (typeof fn !== "function") return null;
-        try { return fn.call(javaBridge); } catch (_) { return null; }
+        try {
+            return fn.call(javaBridge);
+        } catch (_) {
+            return null;
+        }
     },
 
     tryToLogin(username, password) {
         if (!this.isReady()) return;
         if (typeof javaBridge.tryToLogin === "function") {
             javaBridge.tryToLogin(username, password);
+        }
+    },
+    register(username, password) {
+        if (!this.isReady()) return;
+        if (typeof javaBridge.register === "function") {
+            javaBridge.register(username, password);
+        }
+
+        this.log(javaBridge.register)
+    },
+    verifyRegister(code) {
+        if (!this.isReady()) return;
+        try {
+            if (typeof javaBridge.verifyRegister === "function") {
+                javaBridge.verifyRegister(code);
+            }
+        } catch (e) {
+
         }
     },
 
