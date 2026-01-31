@@ -14,8 +14,7 @@ const Home = {
         this.showLoadingState();
 
         // Llamar al endpoint real
-        this.fetchChats();
-        }, 500);
+        this.refresh();
     },
 
     showLoadingState: function() {
@@ -28,28 +27,30 @@ const Home = {
         `;
     },
 
-    fetchChats: async function() {
+    refresh: async function() {
         try {
-            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM/api/';
-            const response = await fetch(`${BASE_URL}/api/chats`, {
-                method: 'doGET', //doGET?
+            const userId = await javaBridge.getUserId();
+            javaBridge.log('Fetching chats for user: ' + userId);
+            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM/api';
+            const response = await fetch(`${BASE_URL}/chats?userId=${userId}`, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 }
             });
 
             if (!response.ok) {
+                javaBridge.log(`HTTP error! status: ${response.status}`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            javaBridge.log('Chats fetched successfully');
+
             const chats = await response.json();
             this.renderChats(chats);
-            // const chats = await Bridge.getChats();
-            // this.renderChats(chats);
 
-            this.showEmptyState();
         } catch (error) {
-            console.error('Error loading chats:', error);
+            javaBridge.log('Error loading chats: ' + error);
             this.showEmptyState();
         }
     },
@@ -71,8 +72,7 @@ const Home = {
         const initials = this.getInitials(chat.name);
         const time = chat.lastMessageTime ? Utils.formatRelative(chat.lastMessageTime) : '';
         const unreadBadge = chat.unreadCount > 0
-            ? `<span class="chat-item-unread">${chat.unreadCount}</span>`
-            : '';
+            ? `<span class="chat-item-unread">${chat.unreadBadge}</span>` : "";
 
         return `
             <div class="chat-item" onclick="Home.openChat('${chat.id}')">
@@ -107,11 +107,11 @@ const Home = {
         // Guardar chatId y navegar al chat
         if (typeof Bridge !== 'undefined') {
             Bridge.log('Opening chat: ' + chatId);
+            Bridge.setChatId(chatId); // <-- AÑADIDO: Guardar el ID en la sesión
         }
 
         // Actualizar params para que el chat sepa cual abrir
         if (typeof loadPage === 'function') {
-            // Guardar chatId en sesion via bridge si es posible
             loadPage('chat');
         }
     },
