@@ -1,5 +1,7 @@
 const Login = {
     tryToLogin: function () {
+        Bridge.log("Intentando login...");
+
         Bridge.tryToLogin(
             document.getElementById("username").value,
             document.getElementById("password").value

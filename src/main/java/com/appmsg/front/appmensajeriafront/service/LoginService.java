@@ -14,7 +14,7 @@ public class LoginService {
 
     private HttpClient httpClient;
 
-    private final String BASE_URL = "http://localhost:8080/api";
+    private final String BASE_URL = "http://localhost:8080/APPMensajeriaUEM_war_exploded/api";
 
     private static final Gson gson = new Gson();
 
