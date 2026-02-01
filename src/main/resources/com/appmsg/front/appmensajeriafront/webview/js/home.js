@@ -27,30 +27,12 @@ const Home = {
         `;
     },
 
-    refresh: async function() {
+    refresh: function() {
         try {
-            const userId = await Bridge.getUserId();
-            Bridge.log('Fetching chats for user: ' + userId);
-            const BASE_URL = 'http://localhost:8080/APPMensajeriaUEM_war_exploded/api';
-            const response = await fetch(`${BASE_URL}/chats?userId=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (!response.ok) {
-                Bridge.log(`HTTP error! status: ${response.status}`);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            Bridge.log('Chats fetched successfully');
-
-            const chats = await response.json();
-            this.renderChats(chats);
-
+            Bridge.log('Requesting chats from Java');
+            Bridge.getChats();
         } catch (error) {
-            Bridge.log('Error loading chats: ' + error);
+            Bridge.log('Error requesting chats: ' + error);
             this.showEmptyState();
         }
     },
@@ -131,3 +113,8 @@ Bridge.whenReady(() => {
     Bridge.log('Home page initialized');
     Home.init()
 });
+
+window.onChatsReceived = function (result) {
+    const chats = (typeof result === "string") ? JSON.parse(result) : result;
+    Home.renderChats(chats);
+};

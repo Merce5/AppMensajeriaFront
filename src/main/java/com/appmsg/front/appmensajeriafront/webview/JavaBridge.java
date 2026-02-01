@@ -1,6 +1,7 @@
 package com.appmsg.front.appmensajeriafront.webview;
 
 import com.appmsg.front.appmensajeriafront.model.*;
+import com.appmsg.front.appmensajeriafront.service.ChatService;
 import com.appmsg.front.appmensajeriafront.service.LoginService;
 import com.appmsg.front.appmensajeriafront.service.ChatWebSocketClient;
 import com.appmsg.front.appmensajeriafront.service.FileUploadService;
@@ -31,6 +32,7 @@ public class JavaBridge {
     private final InviteService inviteService;
     private final ProfileService profileService;
     private final ChatController chatController;
+    private final ChatService chatService;
 
     private ChatWebSocketClient wsClient;
     private final PageLoader pageLoader;
@@ -48,6 +50,7 @@ public class JavaBridge {
         this.profileService = new ProfileService();
         this.chatController = new ChatController(webViewManager);
         this.gateway = new LoginService();
+        this.chatService = new ChatService();
     }
 
 
@@ -85,8 +88,8 @@ public class JavaBridge {
 
         Session.setUserId(loginResult.getUserId());
 //        chatController.loadIndex();
-        navigate("main.html");
-//        navigate("home.html");
+//        navigate("main.html");
+        navigate("home.html");
     }
 
     public void register(String username, String password) throws IOException, InterruptedException {
@@ -101,6 +104,20 @@ public class JavaBridge {
     }
 
     // ===== Chat (WS) =====
+
+    public void getChats() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                List<ChatListItemDto> chats = chatService.getChats(Session.getUserId());
+                String json = gson.toJson(chats);
+                Platform.runLater(() -> callJsFunction("onChatsReceived", json));
+            } catch (Exception e) {
+                e.printStackTrace();
+                // En caso de error, podrías enviar una lista vacía o un objeto de error
+                Platform.runLater(() -> callJsFunction("onChatsReceived", "[]"));
+            }
+        });
+    }
 
     public void connectToChat(String chatId) {
         String userId = Session.getUserId();

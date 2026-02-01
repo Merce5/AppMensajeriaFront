@@ -21,6 +21,15 @@ const Bridge = {
         }
     },
 
+    getChats(){
+        if (!this.isReady() || typeof javaBridge.getChats !== "function") return;
+        try {
+            javaBridge.getChats();
+        } catch (e) {
+            console.warn("Error calling getChats", e);
+        }
+    },
+
     log(message) {
         try {
             if (this.isReady() && typeof javaBridge.log === "function") javaBridge.log(message);
