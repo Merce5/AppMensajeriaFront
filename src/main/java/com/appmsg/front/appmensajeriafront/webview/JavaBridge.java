@@ -82,15 +82,14 @@ public class JavaBridge {
     public void tryToLogin(String username, String password) throws IOException, InterruptedException {
         var user = new UserDto(username, password);
         LoginRS loginResult = loginService.login(user);
-        if (loginResult.getUserId() == null) {
-            // todo
-            return;
-        }
-
-        Session.setUserId(loginResult.getUserId());
+        if (loginResult.getUserId() == null || loginResult.getError() != null) {
+            Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(loginResult)));
+        } else {
+            Session.setUserId(loginResult.getUserId());
 //        chatController.loadIndex();
 //        navigate("main.html");
-        navigate("home.html");
+            navigate("home.html");
+        }
     }
 
     public void register(String username, String password) throws IOException, InterruptedException {
