@@ -10,7 +10,7 @@
 <div class="auth-wrap">
     <div class="auth-card login-box">
         <h2>Login</h2>
-        <p class="muted" style="margin: 0 0 12px 0;">Revisa tu correo para continuar</p>
+        <p class="muted" style="margin: 0 0 12px 0;">Revisa tu correo para continuar. Probablemente haya entrado en spam</p>
 
         <div class="field">
             <label for="code">Código de verificación</label>
@@ -18,6 +18,7 @@
         </div>
 
         <div class="auth-actions">
+            <div id="error-card"></div>
             <button class="btn btn-primary" type="button" onclick="Login.verifyRegister()">Registrarse</button>
         </div>
     </div>
