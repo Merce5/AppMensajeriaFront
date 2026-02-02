@@ -108,25 +108,99 @@ const Chat = {
     // ==================== RECEPCION DE MENSAJES ====================
 
     onMessageReceived: function(message) {
+        const type = message.type || 'message';
+
+        switch (type) {
+            case 'message':
+                this.handleChatMessage(message);
+                break;
+            case 'user_connected':
+                this.handleSystemEvent(message, 'se ha conectado');
+                break;
+            case 'user_disconnected':
+                this.handleSystemEvent(message, 'se ha desconectado');
+                break;
+            case 'status':
+                this.handleStatusUpdate(message);
+                break;
+            case 'error':
+                this.handleError(message);
+                break;
+            default:
+                Bridge.log('Tipo de mensaje desconocido: ' + type);
+                break;
+        }
+    },
+
+    handleChatMessage: function(message) {
         // Ocultar estado vacio
         const emptyState = document.getElementById('empty-state');
         if (emptyState) {
             emptyState.classList.add('hidden');
         }
 
-        // Verificar si debemos scroll automatico
         const container = document.getElementById('messages');
         const shouldScroll = Utils.isNearBottom(container);
 
-        // Renderizar mensaje
         this.renderMessage(message);
 
-        // Scroll si estaba cerca del final
         if (shouldScroll) {
             this.scrollToBottom();
         }
 
         this.messages.push(message);
+    },
+
+    handleSystemEvent: function(event, action) {
+        const container = document.getElementById('messages');
+        const shouldScroll = Utils.isNearBottom(container);
+
+        const userId = event.userId || event.senderId || '';
+        const time = event.timestamp ? Utils.formatTime(event.timestamp) : '';
+
+        const div = document.createElement('div');
+        div.className = 'system-message';
+        div.innerHTML = `<span>${Utils.escapeHtml(userId)} ${action}</span>`
+            + (time ? `<span class="system-message-time">${time}</span>` : '');
+
+        container.appendChild(div);
+
+        if (shouldScroll) {
+            this.scrollToBottom();
+        }
+    },
+
+    handleStatusUpdate: function(data) {
+        // Buscar el mensaje en el DOM y actualizar su icono de estado
+        const messageId = data.messageId;
+        const newStatus = data.status;
+        if (!messageId || !newStatus) return;
+
+        const msgEl = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (msgEl) {
+            const metaEl = msgEl.querySelector('.status-icon');
+            if (metaEl) {
+                metaEl.className = 'status-icon' + (newStatus === 'read' ? ' read' : '');
+                metaEl.innerHTML = newStatus === 'sent' ? '&#10003;' : '&#10003;&#10003;';
+            }
+        }
+
+        // Actualizar en el array tambien
+        const stored = this.messages.find(m => m.messageId === messageId);
+        if (stored) {
+            stored.status = newStatus;
+        }
+    },
+
+    handleError: function(data) {
+        const errorMsg = data.message || 'Error desconocido';
+        Bridge.log('WebSocket error: ' + errorMsg);
+
+        const container = document.getElementById('messages');
+        const div = document.createElement('div');
+        div.className = 'system-message system-message-error';
+        div.innerHTML = `<span>${Utils.escapeHtml(errorMsg)}</span>`;
+        container.appendChild(div);
     },
 
     renderMessage: function(msg) {
@@ -147,18 +221,19 @@ const Chat = {
         // Multimedia
         if (msg.multimedia && msg.multimedia.length > 0) {
             html += '<div class="message-media">';
-            msg.multimedia.forEach(url => {
+            msg.multimedia.forEach(rawUrl => {
+                const url = Bridge.resolveFileUrl(rawUrl);
                 if (Utils.isImage(url)) {
                     html += `<img src="${url}" class="media-image" onclick="Chat.openMedia('${url}')" alt="Imagen">`;
                 } else if (Utils.isVideo(url)) {
                     html += `<video src="${url}" class="media-video" controls></video>`;
                 } else {
-                    const fileName = Utils.getFileName(url);
-                    const icon = Utils.getFileIcon(url);
-                    html += `<a href="${url}" class="media-file" target="_blank">
+                    const fileName = Utils.getFileName(rawUrl);
+                    const icon = Utils.getFileIcon(rawUrl);
+                    html += `<div class="media-file" onclick="Chat.openMedia('${url}')" style="cursor:pointer">
                         <span>${icon}</span>
                         <span>${Utils.escapeHtml(fileName)}</span>
-                    </a>`;
+                    </div>`;
                 }
             });
             html += '</div>';
@@ -299,8 +374,8 @@ const Chat = {
     },
 
     openMedia: function(url) {
-        // Abrir imagen en nueva ventana/modal
-        window.open(url, '_blank');
+        // Abrir en el navegador del sistema
+        Bridge.openExternal(url);
     },
 
     // ==================== UTILIDADES ====================

@@ -51,21 +51,23 @@ const Home = {
     },
 
     renderChatItem: function(chat) {
-        const initials = this.getInitials(chat.name);
+        const name = chat.chatName || chat.name || 'Chat';
+        const image = chat.chatImage || chat.image || '';
+        const initials = this.getInitials(name);
         const time = chat.lastMessageTime ? Utils.formatRelative(chat.lastMessageTime) : '';
         const unreadBadge = chat.unreadCount > 0
-            ? `<span class="chat-item-unread">${chat.unreadBadge}</span>` : "";
+            ? `<span class="chat-item-unread">${chat.unreadCount}</span>` : "";
 
         return `
             <div class="chat-item" onclick="Home.openChat('${chat.id}')">
                 <div class="chat-item-avatar">
-                    ${chat.image
-                        ? `<img src="${chat.image}" alt="${chat.name}">`
+                    ${image
+                        ? `<img src="${image}" alt="${name}">`
                         : initials}
                 </div>
                 <div class="chat-item-content">
                     <div class="chat-item-header">
-                        <span class="chat-item-name">${Utils.escapeHtml(chat.name)}</span>
+                        <span class="chat-item-name">${Utils.escapeHtml(name)}</span>
                         <span class="chat-item-time">${time}</span>
                     </div>
                     <div class="chat-item-preview">
