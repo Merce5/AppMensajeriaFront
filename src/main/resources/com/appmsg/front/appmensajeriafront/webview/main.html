@@ -19,7 +19,7 @@
         <div class="topbar-spacer"></div>
 
         <div class="topbar-actions">
-            <button class="icon-btn" type="button" title="Nuevo chat">＋</button>
+            <button class="icon-btn" type="button" title="Nuevo chat" onclick="toggleNewChat()">＋</button>
             <button class="avatar-btn" type="button" title="Ajustes" onclick="Bridge.navigate('settings.html')">
         <span class="avatar-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -54,6 +54,93 @@
                 </div>
             </div>
         </section>
+
+        <!-- Menu creacion de chat -->
+        <section id="new-chat-card" class="card hidden">
+            <h3 class="card-title">Crear un nuevo chat</h3>
+            <div style="padding: var(--spacing-md) 0;">
+                <form id="new-chat-form">
+                    <!-- Nombre del chat -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                        <label for="chat-name" style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
+                            Nombre del chat
+                        </label>
+                        <input
+                                type="text"
+                                id="chat-name"
+                                placeholder="Escribe un nombre para el chat"
+                                style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border); border-radius: var(--radius-sm);"
+                        />
+                    </div>
+
+                    <!-- Contador de participantes -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-lg);">
+                        <label style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
+                            Número de participantes
+                        </label>
+                        <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                            <button
+                                    type="button"
+                                    class="icon-btn"
+                                    onclick="changeParticipantCount(-1)"
+                                    style="border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"
+                            >
+                                −
+                            </button>
+                            <span
+                                    id="participant-count"
+                                    style="font-size: 1.5rem; min-width: 40px; text-align: center;"
+                            >
+                        1
+                    </span>
+                            <button
+                                    type="button"
+                                    class="icon-btn"
+                                    onclick="changeParticipantCount(1)"
+                                    style="border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"
+                            >
+                                ＋
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Campo de salida para enlace/código -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                        <label style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
+                            Enlace de invitación
+                        </label>
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <input
+                                    type="text"
+                                    id="invitation-link"
+                                    readonly
+                                    placeholder="Se generará al crear el chat"
+                                    style="flex: 1; padding: var(--spacing-sm); border: 1px solid var(--border); border-radius: var(--radius-sm); background-color: var(--surface-3); cursor: not-allowed;"
+                            />
+                            <button
+                                    type="button"
+                                    class="icon-btn"
+                                    onclick="copyInvitationLink()"
+                                    style="border-radius: var(--radius-sm); padding: var(--spacing-sm);"
+                                    title="Copiar enlace"
+                            >
+                                📋
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div style="display: flex; gap: var(--spacing-md);">
+                        <button type="button" class="btn btn-primary" onclick="createNewChat()">
+                            Crear chat
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="hideNewChat()">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
     </div>
 
     <!-- Estado sin chats -->
@@ -66,6 +153,95 @@
 </main>
 <script src="js/bridge.js"></script>
 <script>
+
+    function toggleNewChat() {
+        const newChatCard = document.getElementById('new-chat-card');
+        if (newChatCard.classList.contains('hidden')) {
+            newChatCard.classList.remove('hidden');
+        } else {
+            newChatCard.classList.add('hidden');
+        }
+    }
+
+    function hideNewChat() {
+        const newChatCard = document.getElementById('new-chat-card');
+        newChatCard.classList.add('hidden');
+    }
+
+    // Hacer las funciones globales
+    window.toggleNewChat = toggleNewChat;
+    window.hideNewChat = hideNewChat;
+
+    // Funciones para el contador de participantes
+    function changeParticipantCount(delta) {
+        const countElement = document.getElementById('participant-count');
+        let currentCount = parseInt(countElement.textContent);
+        let newCount = currentCount + delta;
+
+        // No permitir valores menores a 1
+        if (newCount < 1) return;
+
+        countElement.textContent = newCount;
+    }
+
+    function createNewChat() {
+        const chatName = document.getElementById('chat-name').value.trim();
+        const participantCount = parseInt(document.getElementById('participant-count').textContent);
+
+        // Validaciones básicas
+        if (!chatName) {
+            alert('Por favor, introduce un nombre para el chat');
+            return;
+        }
+
+        // Aquí llamarías a la función Java para crear el chat
+        Bridge.log(`Creando chat: ${chatName} con ${participantCount} participantes`);
+
+        // Ejemplo: Bridge.createNewChat(chatName, participantCount);
+
+        // Limpiar y cerrar
+        document.getElementById('chat-name').value = '';
+        document.getElementById('participant-count').textContent = '1';
+        hideNewChat();
+    }
+
+    function copyInvitationLink() {
+    const invitationLinkInput = document.getElementById('invitation-link');
+    const link = invitationLinkInput.value;
+
+    if (!link) {
+        alert('No hay enlace para copiar. Crea un chat primero.');
+        return;
+    }
+
+    // Usar la API del portapapeles
+    navigator.clipboard.writeText(link)
+        .then(() => {
+            // Mostrar retroalimentación visual
+            const copyBtn = document.querySelector('button[onclick="copyInvitationLink()"]');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = '✅';
+            copyBtn.style.backgroundColor = 'var(--success)';
+
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.backgroundColor = '';
+            }, 1500);
+        })
+        .catch(err => {
+            console.error('Error al copiar: ', err);
+            // Fallback para navegadores antiguos
+            invitationLinkInput.select();
+            document.execCommand('copy');
+            alert('Enlace copiado al portapapeles');
+        });
+    }
+
+    // Hacer las funciones globales
+    window.changeParticipantCount = changeParticipantCount;
+    window.createNewChat = createNewChat;
+    window.copyInvitationLink = copyInvitationLink;
+
     (function () {
         function getInitials(name) {
             if (!name) return '?';
