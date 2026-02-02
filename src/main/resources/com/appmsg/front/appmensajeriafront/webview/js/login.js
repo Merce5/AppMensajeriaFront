@@ -9,7 +9,7 @@ const Login = {
     },
     register: function () {
         Bridge.register(
-            document.getElementById("username-register").value,
+            document.getElementById("email-register").value,
             document.getElementById("password-register").value
         )
     },
@@ -20,14 +20,15 @@ const Login = {
     }
 };
 
-window.onLoginResult = function (result) {
-    // Por si alguna vez llega como string JSON
+window.onErrorLoginResult = function (result) {
     const data = (typeof result === "string") ? JSON.parse(result) : result;
 
-    if (data && data.ok) {
-        console.log("Login OK, userId:", data.userId);
+    Bridge.log(data?.error);
 
+    if (data && data.error) {
+        document.getElementById("error-card").textContent =
+            typeof data.error === "string" ? data.error : "Error";
     } else {
-        alert("Usuario o contraseña incorrectos");
+        console.log(data);
     }
 };

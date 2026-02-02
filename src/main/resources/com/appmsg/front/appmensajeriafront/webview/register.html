@@ -13,8 +13,8 @@
         <p class="muted" style="margin: 0 0 12px 0;">Introduce un correo y una contraseña para continuar</p>
 
         <div class="field">
-            <label for="username-register">Usuario</label>
-            <input class="input" type="text" id="username-register" placeholder="Usuario" autocomplete="username">
+            <label for="email-register">Usuario</label>
+            <input class="input" type="text" id="email-register" placeholder="Correo" autocomplete="email">
         </div>
 
         <div style="height: 12px;"></div>
@@ -25,6 +25,7 @@
         </div>
 
         <div class="auth-actions">
+            <div id="error-card"></div>
             <button class="btn btn-primary" type="button" onclick="Login.register()">Registrarse</button>
         </div>
     </div>

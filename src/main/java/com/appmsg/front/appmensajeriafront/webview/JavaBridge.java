@@ -2,6 +2,7 @@ package com.appmsg.front.appmensajeriafront.webview;
 
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.*;
+import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
 import com.appmsg.front.appmensajeriafront.service.ChatService;
 import com.appmsg.front.appmensajeriafront.service.LoginService;
 import com.appmsg.front.appmensajeriafront.service.ChatWebSocketClient;
@@ -40,7 +41,7 @@ public class JavaBridge {
 
     private ChatWebSocketClient wsClient;
     private final PageLoader pageLoader;
-    private LoginService gateway;
+    private LoginService loginService;
 
     // constructor
     public JavaBridge(WebViewManager webViewManager, Map<String, String> initParams, PageLoader pageLoader) {
@@ -54,7 +55,7 @@ public class JavaBridge {
         this.inviteService = new InviteService();
         this.profileService = new ProfileService();
         this.chatController = new ChatController(webViewManager);
-        this.gateway = new LoginService();
+        this.loginService = new LoginService();
         this.chatService = new ChatService();
     }
 
@@ -99,7 +100,7 @@ public class JavaBridge {
 
     public void tryToLogin(String username, String password) throws IOException, InterruptedException {
         var user = new UserDto(username, password);
-        LoginRS loginResult = gateway.login(user);
+        LoginRS loginResult = loginService.login(user);
         if (loginResult.getUserId() == null) {
             // todo
             return;
@@ -113,13 +114,22 @@ public class JavaBridge {
 
     public void register(String username, String password) throws IOException, InterruptedException {
         var user = new UserDto(username, password);
-        gateway.register(user);
-        chatController.loadVerification();
+        var response = loginService.register(user);
+        if (response.getStatus().equals("error")) {
+            Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(response)));
+        } else {
+            chatController.loadVerification();
+        }
     }
 
     public void verifyRegister(String verificationCode) throws IOException, InterruptedException {
-        gateway.verifyRegister(verificationCode);
-        chatController.loadIndex();
+        var response = loginService.verifyRegister(verificationCode);
+        if (response.getStatus().equals("error")) {
+            Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(response)));
+        } else {
+            Session.setUserId(response.getMessage());
+            chatController.loadIndex();
+        }
     }
 
     // ===== Chat (WS) =====
