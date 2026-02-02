@@ -113,9 +113,19 @@ const Home = {
 // Inicializar
 Bridge.whenReady(() => {
     Bridge.log('Home page initialized');
-    Home.init()
+    // Cargar ajustes y aplicar tema
+    if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
+        javaBridge.loadSettings();
+    }
+    Home.init();
 });
 
+// Recibe los ajustes y aplica el tema
+function onSettingsLoaded(dto) {
+    if (dto && typeof dto.darkMode !== "undefined") {
+        Utils.applyTheme(!!dto.darkMode);
+    }
+}
 window.onChatsReceived = function (result) {
     const chats = (typeof result === "string") ? JSON.parse(result) : result;
     Home.renderChats(chats);

@@ -15,6 +15,11 @@ const Chat = {
     init: function() {
         Bridge.log("Initializing Chat view");
 
+        // Cargar ajustes y aplicar tema
+        if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
+            javaBridge.loadSettings();
+        }
+
         this.userId = Bridge.getUserId();
         this.chatId = Bridge.getChatId();
 
@@ -39,6 +44,28 @@ const Chat = {
         Bridge.log('Chat initialized: ' + this.chatId);
 
         this.initialized = true;
+    },
+
+    // Recibe los ajustes y aplica el tema
+    onSettingsLoaded: function(dto) {
+        if (dto && typeof dto.darkMode !== "undefined") {
+            Utils.applyTheme(!!dto.darkMode);
+        }
+        // Aplicar fondo de chat si hay wallpaper
+        if (dto && dto.wallpaperPath) {
+            const messages = document.getElementById('messages');
+            if (messages) {
+                messages.style.backgroundImage = `url('${dto.wallpaperPath}')`;
+                messages.style.backgroundSize = 'cover';
+                messages.style.backgroundPosition = 'center';
+                messages.style.backgroundRepeat = 'no-repeat';
+            }
+        } else {
+            const messages = document.getElementById('messages');
+            if (messages) {
+                messages.style.backgroundImage = '';
+            }
+        }
     },
 
     setupEventListeners: function() {

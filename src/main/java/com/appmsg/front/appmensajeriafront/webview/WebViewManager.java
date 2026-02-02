@@ -1,6 +1,5 @@
 package com.appmsg.front.appmensajeriafront.webview;
 
-import com.appmsg.front.appmensajeriafront.service.SettingsBridge;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -17,7 +16,6 @@ public class WebViewManager implements PageLoader {
     private final WebEngine webEngine;
 
     private JavaBridge bridge;
-    private SettingsBridge settingsBridge;
     private Map<String, String> initParams = new HashMap<>();
 
     public WebViewManager(WebView webView) {
@@ -49,8 +47,6 @@ public class WebViewManager implements PageLoader {
 
         this.bridge = new JavaBridge(this, initParams, this);
 
-        this.settingsBridge = new SettingsBridge(webEngine, this::getWindow);
-
         loadPage(htmlPage);
     }
 
@@ -68,13 +64,9 @@ public class WebViewManager implements PageLoader {
         if (bridge == null) {
             bridge = new JavaBridge(this, initParams, this);
         }
-        if (settingsBridge == null) {
-            settingsBridge = new SettingsBridge(webEngine, this::getWindow);
-        }
 
         JSObject window = (JSObject) webEngine.executeScript("window");
         window.setMember("javaBridge", bridge);
-        window.setMember("settingsBridge", settingsBridge);
 
         webEngine.executeScript("if(typeof onBridgeReady === 'function') { onBridgeReady(); }");
     }

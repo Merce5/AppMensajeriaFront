@@ -1,14 +1,8 @@
 package com.appmsg.front.appmensajeriafront.webview;
-
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.*;
 import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
-import com.appmsg.front.appmensajeriafront.service.ChatService;
-import com.appmsg.front.appmensajeriafront.service.LoginService;
-import com.appmsg.front.appmensajeriafront.service.ChatWebSocketClient;
-import com.appmsg.front.appmensajeriafront.service.FileUploadService;
-import com.appmsg.front.appmensajeriafront.service.InviteService;
-import com.appmsg.front.appmensajeriafront.service.ProfileService;
+import com.appmsg.front.appmensajeriafront.service.*;
 import com.appmsg.front.appmensajeriafront.session.Session;
 import com.appmsg.front.appmensajeriafront.ui.chat.ChatController;
 import com.google.gson.Gson;
@@ -17,7 +11,6 @@ import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,7 +34,8 @@ public class JavaBridge {
 
     private ChatWebSocketClient wsClient;
     private final PageLoader pageLoader;
-    private LoginService loginService;
+    private final LoginService loginService;
+    private final SettingsService settingsService;
 
     // constructor
     public JavaBridge(WebViewManager webViewManager, Map<String, String> initParams, PageLoader pageLoader) {
@@ -50,16 +44,79 @@ public class JavaBridge {
         this.initParams = initParams;
         this.pageLoader = pageLoader;
         this.gson = new Gson();
-
         this.uploadService = new FileUploadService();
         this.inviteService = new InviteService();
         this.profileService = new ProfileService();
         this.chatController = new ChatController(webViewManager);
         this.loginService = new LoginService();
         this.chatService = new ChatService();
+        this.settingsService = new SettingsService();
     }
 
+    // ===== Settings (expuestos a JS) =====
+    public String getWallpapersJson() {
+        return gson.toJson(com.appmsg.front.appmensajeriafront.service.WallpaperProvider.getWallpaperUrls());
+    }
 
+    public void loadSettings() {
+        String userId = Session.getUserId();
+        if (userId == null) {
+            Platform.runLater(() -> callJsFunction("onSettingsError", "No hay sesión"));
+            return;
+        }
+        CompletableFuture.supplyAsync(() -> {
+                    try { return settingsService.getSettings(userId); }
+                    catch (Exception e) { throw new RuntimeException(e); }
+                })
+                .thenAccept(dto -> Platform.runLater(() ->
+                        callJsFunctionObj("onSettingsLoaded", gson.toJson(dto))
+                ))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> callJsFunction("onSettingsError", ex.getMessage()));
+                    return null;
+                });
+    }
+
+    public void saveSettings(String json) {
+        com.appmsg.front.appmensajeriafront.model.UserSettingsDto dto = gson.fromJson(json, com.appmsg.front.appmensajeriafront.model.UserSettingsDto.class);
+        dto.userId = Session.getUserId();
+        CompletableFuture.supplyAsync(() -> {
+                    try { return settingsService.saveSettings(dto); }
+                    catch (Exception e) { throw new RuntimeException(e); }
+                })
+                .thenAccept(saved -> Platform.runLater(() ->
+                        callJsFunctionObj("onSettingsSaved", gson.toJson(saved))
+                ))
+                .exceptionally(ex -> {
+                    Platform.runLater(() -> callJsFunction("onSettingsError", ex.getMessage()));
+                    return null;
+                });
+    }
+
+    public void chooseWallpaper() {
+        Window w = webViewManager.getWebView().getScene() != null
+                ? webViewManager.getWebView().getScene().getWindow()
+                : null;
+        if (w == null) return;
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Elegir fondo");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Imágenes", "*.png","*.jpg","*.jpeg")
+        );
+        File f = fc.showOpenDialog(w);
+        if (f != null) {
+            Platform.runLater(() -> callJsFunctionObj("onWallpaperChosen",
+                    gson.toJson(Map.of("uri", f.toURI().toString()))));
+        }
+    }
+
+    // Utilidad para pasar objetos JSON a JS (parseados)
+    private void callJsFunctionObj(String fn, String json) {
+        String s = escape(json);
+        webEngine.executeScript(
+                "if(typeof " + fn + "==='function'){ " + fn + "(JSON.parse('" + s + "')); }"
+        );
+    }
     // ===== Session / Init =====
 
     public String getUserId() {

@@ -119,6 +119,14 @@ const Utils = {
     // ==================== DOM ====================
 
     /**
+     * Aplica el tema global (oscuro o claro) en toda la app
+     * @param {boolean} darkMode
+     */
+    applyTheme: function(darkMode) {
+        document.documentElement.dataset.theme = darkMode ? "dark" : "light";
+    },
+
+    /**
      * Scroll al final de un elemento
      */
     scrollToBottom: function(element) {

@@ -26,5 +26,17 @@
 
 <script type="text/javascript" src="js/bridge.js"></script>
 <script type="text/javascript" src="js/login.js"></script>
+<script>
+Bridge.whenReady(() => {
+    if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
+        javaBridge.loadSettings();
+    }
+});
+function onSettingsLoaded(dto) {
+    if (dto && typeof dto.darkMode !== "undefined") {
+        Utils.applyTheme(!!dto.darkMode);
+    }
+}
+</script>
 </body>
 </html>

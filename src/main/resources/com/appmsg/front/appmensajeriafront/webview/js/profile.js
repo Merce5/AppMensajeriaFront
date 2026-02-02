@@ -86,4 +86,17 @@ const Profile = {
 };
 
 // Inicializar
-Bridge.whenReady(() => Profile.init());
+Bridge.whenReady(() => {
+    // Cargar ajustes y aplicar tema
+    if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
+        javaBridge.loadSettings();
+    }
+    Profile.init();
+});
+
+// Recibe los ajustes y aplica el tema
+function onSettingsLoaded(dto) {
+    if (dto && typeof dto.darkMode !== "undefined") {
+        Utils.applyTheme(!!dto.darkMode);
+    }
+}
