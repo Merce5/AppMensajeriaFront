@@ -9,11 +9,11 @@
 <body>
 <div class="auth-wrap">
     <div class="auth-card login-box">
-        <h2>Login</h2>
+        <h2>Registro</h2>
         <p class="muted" style="margin: 0 0 12px 0;">Introduce un correo y una contraseña para continuar</p>
 
         <div class="field">
-            <label for="email-register">Usuario</label>
+            <label for="email-register">Correo</label>
             <input class="input" type="text" id="email-register" placeholder="Correo" autocomplete="email">
         </div>
 
@@ -23,7 +23,9 @@
             <label for="password-register">Contraseña</label>
             <input class="input" type="password" id="password-register" placeholder="Contraseña" autocomplete="current-password">
         </div>
-
+        <div style="margin-top: 10px">
+            <p class="muted" style="margin: 0 0 12px 0;">La contraseña debe tener mínimo 8 carácteres, minúsculas, mayúsculas, números y símbolos.</p>
+        </div>
         <div class="auth-actions">
             <div id="error-card"></div>
             <button class="btn btn-primary" type="button" onclick="Login.register()">Registrarse</button>
