@@ -65,6 +65,35 @@ const Bridge = {
         try { fn.call(javaBridge, chatId); } catch (_) {}
     },
 
+    /**
+     * Devuelve la URL base del backend (ej: http://localhost:8080/APPMensajeriaUEM_war_exploded)
+     */
+    getBaseUrl() {
+        if (!this._baseUrl) {
+            try {
+                if (this.isReady() && typeof javaBridge.getBaseUrl === "function") {
+                    this._baseUrl = javaBridge.getBaseUrl();
+                }
+            } catch (_) {}
+            if (!this._baseUrl) this._baseUrl = "";
+        }
+        return this._baseUrl;
+    },
+
+    /**
+     * Resuelve una URL de archivo del backend a su URL completa.
+     * Si ya es absoluta la devuelve tal cual.
+     */
+    resolveFileUrl(path) {
+        if (!path) return "";
+        // Ya es absoluta
+        if (path.startsWith("http://") || path.startsWith("https://")) return path;
+        // Relativa al backend
+        var base = this.getBaseUrl();
+        if (base && !path.startsWith("/")) path = "/" + path;
+        return base + path;
+    },
+
     tryToLogin(username, password) {
         if (!this.isReady()) return;
         if (typeof javaBridge.tryToLogin === "function") {
@@ -95,6 +124,18 @@ const Bridge = {
 
         if (typeof javaBridge.navigate === "function") {
             javaBridge.navigate(page);
+        }
+    },
+
+    /**
+     * Abre una URL en el navegador del sistema (para archivos y media).
+     */
+    openExternal(url) {
+        if (!this.isReady() || typeof javaBridge.openExternal !== "function") return;
+        try {
+            javaBridge.openExternal(url);
+        } catch (e) {
+            console.error("Error opening external:", e);
         }
     },
 

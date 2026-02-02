@@ -1,5 +1,6 @@
 package com.appmsg.front.appmensajeriafront.webview;
 
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.*;
 import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
 import com.appmsg.front.appmensajeriafront.service.ChatService;
@@ -14,6 +15,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class JavaBridge {
 
+    private final WebViewManager webViewManager;
     private final WebEngine webEngine;
     private final Gson gson;
     private final Map<String, String> initParams;
@@ -41,6 +45,7 @@ public class JavaBridge {
 
     // constructor
     public JavaBridge(WebViewManager webViewManager, Map<String, String> initParams, PageLoader pageLoader) {
+        this.webViewManager = webViewManager;
         this.webEngine = webViewManager.getWebEngine();
         this.initParams = initParams;
         this.pageLoader = pageLoader;
@@ -77,6 +82,20 @@ public class JavaBridge {
         Session.setChatId(chatId);
     }
 
+    /**
+     * Devuelve la URL base del backend para resolver rutas de archivos.
+     */
+    public String getBaseUrl() {
+        String baseUrl = ApiConfig.BASE_API_URL;
+
+        // Si la url tiene APPMensajeriaUEM_war_exploded la quitamos
+        if (baseUrl.contains("APPMensajeriaUEM_war_exploded")) {
+            baseUrl = baseUrl.replace("APPMensajeriaUEM_war_exploded", "");
+        }
+
+        return baseUrl;
+    }
+
     // ===== Auth =====
 
     public void tryToLogin(String username, String password) throws IOException, InterruptedException {
@@ -86,10 +105,12 @@ public class JavaBridge {
             Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(loginResult)));
         } else {
             Session.setUserId(loginResult.getUserId());
-//        chatController.loadIndex();
-//        navigate("main.html");
-            navigate("home.html");
+//          chatController.loadIndex();
+            navigate("main.html");
+//          navigate("home.html");
+//        }
         }
+
     }
 
     public void register(String username, String password) throws IOException, InterruptedException {
@@ -181,14 +202,103 @@ public class JavaBridge {
         if (wsClient != null) wsClient.sendTyping(isTyping);
     }
 
+    // ===== File Chooser =====
+
+    /**
+     * Abre el FileChooser nativo de JavaFX.
+     * Este metodo se llama desde el FX Application Thread (via WebView bridge),
+     * por lo que puede mostrar el dialogo directamente.
+     *
+     * @param filterType "images", "videos", "documents", o "all"
+     * @return JSON array de paths absolutos, o null si se cancela
+     */
+    public String openFileChooser(String filterType) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Seleccionar archivos");
+
+            String filter = (filterType != null) ? filterType : "all";
+            switch (filter) {
+                case "images":
+                    fileChooser.getExtensionFilters().add(
+                            new FileChooser.ExtensionFilter("Imagenes", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
+                    );
+                    break;
+                case "videos":
+                    fileChooser.getExtensionFilters().add(
+                            new FileChooser.ExtensionFilter("Videos", "*.mp4", "*.webm", "*.avi", "*.mov")
+                    );
+                    break;
+                case "documents":
+                    fileChooser.getExtensionFilters().add(
+                            new FileChooser.ExtensionFilter("Documentos", "*.pdf", "*.doc", "*.docx", "*.xls", "*.xlsx", "*.txt")
+                    );
+                    break;
+                default:
+                    fileChooser.getExtensionFilters().addAll(
+                            new FileChooser.ExtensionFilter("Todos los archivos", "*.*"),
+                            new FileChooser.ExtensionFilter("Imagenes", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"),
+                            new FileChooser.ExtensionFilter("Videos", "*.mp4", "*.webm"),
+                            new FileChooser.ExtensionFilter("Documentos", "*.pdf", "*.doc", "*.docx", "*.txt")
+                    );
+            }
+
+            // Obtener la ventana del WebView para el dialogo modal
+            Window window = webViewManager.getWebView().getScene() != null
+                    ? webViewManager.getWebView().getScene().getWindow()
+                    : null;
+
+            List<File> files = fileChooser.showOpenMultipleDialog(window);
+
+            if (files == null || files.isEmpty()) {
+                return null;
+            }
+
+            List<String> paths = new ArrayList<>();
+            for (File file : files) {
+                paths.add(file.getAbsolutePath());
+            }
+            return gson.toJson(paths);
+
+        } catch (Exception e) {
+            System.err.println("Error abriendo FileChooser: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     // ===== Upload =====
 
-    // Antes llamabas upload(File). Aquí se adapta a uploadFiles(List<File>)
     public void uploadFile(String filePath, String callbackFunction) {
         CompletableFuture.runAsync(() -> {
             try {
                 File file = new File(filePath);
                 UploadResponse response = uploadService.uploadFiles(Arrays.asList(file));
+                String responseJson = gson.toJson(response);
+                Platform.runLater(() -> callJsFunction(callbackFunction, responseJson));
+            } catch (Exception e) {
+                e.printStackTrace();
+                String errorJson = "{\"success\":false,\"error\":\"" + escape(e.getMessage()) + "\"}";
+                Platform.runLater(() -> callJsFunction(callbackFunction, errorJson));
+            }
+        });
+    }
+
+    /**
+     * Sube multiples archivos al servidor (llamado desde bridge.js).
+     * @param filesJson JSON array de paths absolutos
+     * @param callbackFunction nombre de la funcion JS a invocar con el resultado
+     */
+    public void uploadFiles(String filesJson, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                List<String> paths = gson.fromJson(filesJson, List.class);
+                List<File> files = new ArrayList<>();
+                for (String path : paths) {
+                    files.add(new File(path));
+                }
+
+                UploadResponse response = uploadService.uploadFiles(files);
                 String responseJson = gson.toJson(response);
                 Platform.runLater(() -> callJsFunction(callbackFunction, responseJson));
             } catch (Exception e) {
@@ -284,6 +394,38 @@ public class JavaBridge {
 
         // Si no, asumimos "ruta SPA" dentro de index y cargamos el html
         Platform.runLater(() -> pageLoader.load(page + ".html"));
+    }
+
+    // ===== Open file externally =====
+
+    /**
+     * Abre una URL en el navegador del sistema o descarga un archivo.
+     */
+    public void openExternal(String url) {
+        if (url == null || url.isBlank()) return;
+
+        // Resolver URL relativa
+        String fullUrl = url;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            String urlBase = ApiConfig.BASE_API_URL;
+
+            // Si la url tiene APPMensajeriaUEM_war_exploded la quitamos
+            if (urlBase.contains("APPMensajeriaUEM_war_exploded")) {
+                urlBase = urlBase.replace("APPMensajeriaUEM_war_exploded", "");
+            }
+
+            fullUrl = urlBase + (url.startsWith("/") ? url : "/" + url);
+        }
+
+        final String targetUrl = fullUrl;
+        CompletableFuture.runAsync(() -> {
+            try {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(targetUrl));
+            } catch (Exception e) {
+                System.err.println("Error abriendo URL externa: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
     }
 
     // ===== Log =====

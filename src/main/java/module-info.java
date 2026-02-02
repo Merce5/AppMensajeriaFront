@@ -13,6 +13,7 @@ module com.appmsg.front.appmensajeriafront {
 
     requires com.google.gson;
     requires java.net.http;
+    requires java.desktop; // Para java.awt.Desktop (abrir archivos en navegador)
 
     opens com.appmsg.front.appmensajeriafront to javafx.fxml;
 

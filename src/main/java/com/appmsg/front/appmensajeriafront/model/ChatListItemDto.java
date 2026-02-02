@@ -1,14 +1,22 @@
 package com.appmsg.front.appmensajeriafront.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ChatListItemDto {
     private String id;
-    private String name;
+
+    @SerializedName("chatName")
+    private String chatName;
+
+    @SerializedName("chatImage")
+    private String chatImage;
+
     private String lastMessage;
     private String lastMessageTime;
     private int unreadCount;
-    private String image;
+    private Boolean isGroup;
 
-    // Getters and setters for all fields
+    // Getters and setters
 
     public String getId() {
         return id;
@@ -18,12 +26,20 @@ public class ChatListItemDto {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getChatName() {
+        return chatName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setChatName(String chatName) {
+        this.chatName = chatName;
+    }
+
+    public String getChatImage() {
+        return chatImage;
+    }
+
+    public void setChatImage(String chatImage) {
+        this.chatImage = chatImage;
     }
 
     public String getLastMessage() {
@@ -50,11 +66,11 @@ public class ChatListItemDto {
         this.unreadCount = unreadCount;
     }
 
-    public String getImage() {
-        return image;
+    public Boolean getIsGroup() {
+        return isGroup;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setIsGroup(Boolean isGroup) {
+        this.isGroup = isGroup;
     }
 }

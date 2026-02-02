@@ -301,6 +301,39 @@
     color: #60a5fa;
 }
 
+/* ==================== SYSTEM MESSAGES ==================== */
+
+.system-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin: var(--spacing-sm) 0;
+    align-self: center;
+    width: 100%;
+    text-align: center;
+}
+
+.system-message span:first-child {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background-color: var(--surface-2);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+}
+
+.system-message-time {
+    font-size: var(--font-size-xs);
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+.system-message-error span:first-child {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
 /* ==================== DATE SEPARATOR ==================== */
 
 .date-separator {
