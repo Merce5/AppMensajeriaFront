@@ -179,15 +179,19 @@ const Chat = {
     },
 
     handleSystemEvent: function(event, action) {
+        // No mostrar evento propio
+        const eventUserId = event.userId || event.senderId || '';
+        if (eventUserId === this.userId) return;
+
         const container = document.getElementById('messages');
         const shouldScroll = Utils.isNearBottom(container);
 
-        const userId = event.userId || event.senderId || '';
+        const displayName = event.username || eventUserId;
         const time = event.timestamp ? Utils.formatTime(event.timestamp) : '';
 
         const div = document.createElement('div');
         div.className = 'system-message';
-        div.innerHTML = `<span>${Utils.escapeHtml(userId)} ${action}</span>`
+        div.innerHTML = `<span>${Utils.escapeHtml(displayName)} ${action}</span>`
             + (time ? `<span class="system-message-time">${time}</span>` : '');
 
         container.appendChild(div);
@@ -322,11 +326,12 @@ const Chat = {
     onTypingReceived: function(data) {
         const indicator = document.getElementById('typing-indicator');
         const userSpan = document.getElementById('typing-user');
+        const typingUserId = data.userId || data.senderId || '';
 
-        if (data.isTyping && data.senderId !== this.userId) {
+        if (data.isTyping && typingUserId !== this.userId) {
             userSpan.textContent = data.username || 'Alguien';
             indicator.classList.remove('hidden');
-        } else {
+        } else if (!data.isTyping || typingUserId === this.userId) {
             indicator.classList.add('hidden');
         }
     },

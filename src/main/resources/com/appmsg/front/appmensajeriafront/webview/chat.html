@@ -79,5 +79,17 @@
     <script src="js/bridge.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/chat.js"></script>
+    <script>
+    Bridge.whenReady(() => {
+        if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
+            javaBridge.loadSettings();
+        }
+    });
+    function onSettingsLoaded(dto) {
+        if (dto && typeof dto.darkMode !== "undefined") {
+            Utils.applyTheme(!!dto.darkMode);
+        }
+    }
+    </script>
 </body>
 </html>
