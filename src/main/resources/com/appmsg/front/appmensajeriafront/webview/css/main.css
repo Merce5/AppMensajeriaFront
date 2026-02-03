@@ -112,8 +112,37 @@
     }
 }
 
+/* Contenedor de chats con altura fija y scroll */
+.chats-container {
+    height: 372px; /* 6 chats × 62px = 372px (incluye margen) */
+    overflow-y: auto;
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-md);
+}
+
+/* Estilos para la barra de scroll */
+.chats-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chats-container::-webkit-scrollbar-track {
+    background: var(--surface-2);
+    border-radius: 3px;
+    border-color: transparent;
+}
+
+.chats-container::-webkit-scrollbar-thumb {
+    background: var(--surface-3);
+    border-radius: 3px;
+}
+
+.chats-container::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover);
+}
+
+/* Ajustes para cada chat-row */
 .chat-row {
-    width: 100%;
+    width: 460px;
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
@@ -125,6 +154,10 @@
     text-align: left;
     transition: all var(--transition-fast);
     margin-bottom: 10px;
+    height: 60px;
+    min-height: 60px;
+    max-height: 60px;
+    box-sizing: border-box;
 }
 
 .chat-row:last-child {
@@ -137,8 +170,8 @@
 }
 
 .chat-avatar {
-    width: 46px;
-    height: 46px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-full);
     background-color: var(--surface-2);
     color: var(--accent);
@@ -146,6 +179,7 @@
     place-items: center;
     font-weight: 800;
     flex-shrink: 0;
+    font-size: 0.8rem;
 }
 
 .chat-name {
@@ -153,6 +187,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
 }
 
 .chat-preview {
@@ -161,12 +198,25 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.2;
 }
 
 .chat-time {
     color: var(--muted);
     font-size: var(--font-size-xs);
     flex-shrink: 0;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+/* Contenedor interno para organizar mejor el contenido */
+.chat-row .grow {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .profile-row {
