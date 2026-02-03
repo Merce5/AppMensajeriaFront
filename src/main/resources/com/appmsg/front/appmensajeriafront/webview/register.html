@@ -15,6 +15,7 @@
         <div class="field">
             <label for="email-register">Correo</label>
             <input class="input" type="text" id="email-register" placeholder="Correo" autocomplete="email">
+            <small id="email-error" style="color: red; display: none;"></small>
         </div>
 
         <div style="height: 12px;"></div>
@@ -24,11 +25,11 @@
             <input class="input" type="password" id="password-register" placeholder="Contraseña" autocomplete="current-password">
         </div>
         <div style="margin-top: 10px">
-            <p class="muted" style="margin: 0 0 12px 0;">La contraseña debe tener mínimo 8 carácteres, minúsculas, mayúsculas, números y símbolos.</p>
+            <p id="password-hint" class="muted" style="margin: 0 0 12px 0;">La contraseña debe tener mínimo 8 carácteres, minúsculas, mayúsculas, números y símbolos.</p>
         </div>
         <div class="auth-actions">
             <div id="error-card"></div>
-            <button class="btn btn-primary" type="button" onclick="Login.register()">Registrarse</button>
+            <button class="btn btn-primary" type="button" onclick="Login.validateForm()">Registrarse</button>
         </div>
     </div>
 </div>
