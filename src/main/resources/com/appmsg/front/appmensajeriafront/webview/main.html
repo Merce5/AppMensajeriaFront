@@ -19,6 +19,12 @@
         <div class="topbar-spacer"></div>
 
         <div class="topbar-actions">
+            <button class="icon-btn" type="button" title="Unirse con enlace" onclick="Bridge.navigate('invite.html')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+            </button>
             <button class="icon-btn" type="button" title="Nuevo chat" onclick="toggleNewChat()">＋</button>
             <button class="avatar-btn" type="button" title="Ajustes" onclick="Bridge.navigate('settings.html')">
         <span class="avatar-icon" aria-hidden="true">
@@ -130,12 +136,21 @@
                     </div>
 
                     <!-- Botones -->
-                    <div style="display: flex; gap: var(--spacing-md);">
+                    <div id="create-buttons" style="display: flex; gap: var(--spacing-md);">
                         <button type="button" class="btn btn-primary" onclick="createNewChat()">
                             Crear chat
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="hideNewChat()">
                             Cancelar
+                        </button>
+                    </div>
+                    <!-- Botones post-creacion (ocultos inicialmente) -->
+                    <div id="post-create-buttons" class="hidden" style="gap: var(--spacing-md); flex-wrap: wrap;">
+                        <button type="button" class="btn btn-primary" onclick="goToCreatedChat()">
+                            Ir al chat
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="hideNewChat()">
+                            Crear otro
                         </button>
                     </div>
                 </form>
@@ -151,7 +166,6 @@
         </button>
     </div>
 </main>
-<script src="js/bridge.js"></script>
 <script>
 
     function toggleNewChat() {
@@ -163,17 +177,33 @@
         }
     }
 
+    // Variable para guardar el chatId creado
+    let lastCreatedChatId = null;
+
     function hideNewChat() {
         const newChatCard = document.getElementById('new-chat-card');
         newChatCard.classList.add('hidden');
-        // Limpiar y cerrar
+        // Limpiar formulario
         document.getElementById('chat-name').value = '';
         document.getElementById('participant-count').textContent = '1';
+        document.getElementById('invitation-link').value = '';
+        // Resetear botones
+        document.getElementById('create-buttons').classList.remove('hidden');
+        document.getElementById('post-create-buttons').classList.add('hidden');
+        lastCreatedChatId = null;
+    }
+
+    function goToCreatedChat() {
+        if (lastCreatedChatId) {
+            Bridge.setChatId(lastCreatedChatId);
+            Bridge.navigate('chat.html');
+        }
     }
 
     // Hacer las funciones globales
     window.toggleNewChat = toggleNewChat;
     window.hideNewChat = hideNewChat;
+    window.goToCreatedChat = goToCreatedChat;
 
     // Funciones para el contador de participantes
     function changeParticipantCount(delta) {
@@ -190,6 +220,8 @@
     function createNewChat() {
         const chatName = document.getElementById('chat-name').value.trim();
         const participantCount = parseInt(document.getElementById('participant-count').textContent);
+        const createBtn = document.querySelector('#new-chat-form .btn-primary');
+        const invitationInput = document.getElementById('invitation-link');
 
         // Validaciones básicas
         if (!chatName) {
@@ -197,15 +229,40 @@
             return;
         }
 
-        // Aquí llamarías a la función Java para crear el chat
+        // Deshabilitar botón mientras se procesa
+        createBtn.disabled = true;
+        createBtn.textContent = 'Creando...';
+
         Bridge.log(`Creando chat: ${chatName} con ${participantCount} participantes`);
 
-        // Ejemplo: Bridge.createNewChat(chatName, participantCount);
+        Bridge.createNewChat(chatName, participantCount)
+            .then(response => {
+                Bridge.log('Chat creado: ' + JSON.stringify(response));
 
-        // Limpiar y cerrar
-        document.getElementById('chat-name').value = '';
-        document.getElementById('participant-count').textContent = '1';
-        hideNewChat();
+                // Guardar el chatId creado
+                lastCreatedChatId = response.chatId;
+
+                // Mostrar el enlace de invitación
+                if (response.inviteCode) {
+                    invitationInput.value = response.inviteCode;
+                }
+
+                // Actualizar la lista de chats
+                Bridge.getChats();
+
+                // Cambiar a los botones post-creación
+                document.getElementById('create-buttons').classList.add('hidden');
+                document.getElementById('post-create-buttons').classList.remove('hidden');
+                document.getElementById('post-create-buttons').style.display = 'flex';
+            })
+            .catch(error => {
+                Bridge.log('Error creando chat: ' + error.message);
+                alert('Error al crear el chat: ' + error.message);
+            })
+            .finally(() => {
+                createBtn.disabled = false;
+                createBtn.textContent = 'Crear chat';
+            });
     }
 
     function copyInvitationLink() {

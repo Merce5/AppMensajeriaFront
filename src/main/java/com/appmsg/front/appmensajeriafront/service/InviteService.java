@@ -26,6 +26,50 @@ public class InviteService {
     }
 
     /**
+     * Crea un enlace de invitación para un chat.
+     */
+    public InviteResponse createInviteLink(String chatId, String creatorId) throws Exception {
+        String urlStr = ApiConfig.BASE_API_URL + INVITE_PATH;
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setRequestProperty("Accept", "application/json");
+
+        // Crear body
+        JsonObject body = new JsonObject();
+        body.addProperty("action", "create");
+        body.addProperty("chatId", chatId);
+        body.addProperty("createdBy", creatorId);
+
+        // Enviar request
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(gson.toJson(body).getBytes("UTF-8"));
+        }
+
+        // Leer respuesta
+        int responseCode = conn.getResponseCode();
+        String response = readResponse(
+                responseCode >= 200 && responseCode < 300
+                        ? conn.getInputStream()
+                        : conn.getErrorStream()
+        );
+
+        InviteResponse inviteResponse = gson.fromJson(response, InviteResponse.class);
+
+        if (responseCode >= 200 && responseCode < 300) {
+            return inviteResponse;
+        } else {
+            if (inviteResponse != null && inviteResponse.message != null) {
+                throw new Exception(inviteResponse.message);
+            }
+            throw new Exception("Error al crear enlace de invitación");
+        }
+    }
+
+    /**
      * Une al usuario a un chat mediante código de invitación.
      */
     public InviteResponse joinByCode(String inviteCode, String userId) throws Exception {

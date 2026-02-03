@@ -54,8 +54,9 @@ const Invite = {
             // Navegar al chat despues de un momento
             setTimeout(() => {
                 if (response.chatId) {
-                    // Actualizar el chatId en sesion si es posible
+                    // Guardar el chatId en sesion y navegar al chat
                     Bridge.log('Joined chat: ' + response.chatId);
+                    Bridge.setChatId(response.chatId);
                     Bridge.navigate('chat.html');
                 } else {
                     Bridge.navigate('main.html');
