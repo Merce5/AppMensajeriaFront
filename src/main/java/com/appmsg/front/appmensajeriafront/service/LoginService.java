@@ -12,6 +12,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 public class LoginService {
@@ -39,7 +41,7 @@ public class LoginService {
             .POST(HttpRequest.BodyPublishers.ofString(request))
             .build();
 
-        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
         return gson.fromJson(response.body(), LoginRS.class);
     }
@@ -52,7 +54,7 @@ public class LoginService {
             .POST(HttpRequest.BodyPublishers.ofString(request))
             .build();
 
-        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         if (response.statusCode() != 200) {
             var loginRs = new LoginRS();
             loginRs.setError(response.body());
@@ -69,7 +71,7 @@ public class LoginService {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         if (response.statusCode() != 200) {
             throw new IOException("Failed : HTTP error code : " + response.statusCode());
         }

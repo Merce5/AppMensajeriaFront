@@ -124,12 +124,8 @@ const Bridge = {
     },
     verifyRegister(code) {
         if (!this.isReady()) return;
-        try {
-            if (typeof javaBridge.verifyRegister === "function") {
-                javaBridge.verifyRegister(code);
-            }
-        } catch (e) {
-
+        if (typeof javaBridge.verifyRegister === "function") {
+            javaBridge.verifyRegister(code);
         }
     },
 
@@ -340,7 +336,18 @@ const Bridge = {
                 reject(e);
             }
         });
+    },
+    setLoading: function(isLoading, button) {
+    if (isLoading) {
+        document.body.classList.add("loading-cursor");
+        button.disabled = true;
+        button.style.opacity = "0.6";
+    } else {
+        document.body.classList.remove("loading-cursor");
+        button.disabled = false;
+        button.style.opacity = "";
     }
+}
 };
 
 /* Global callbacks */
