@@ -166,6 +166,9 @@
     function hideNewChat() {
         const newChatCard = document.getElementById('new-chat-card');
         newChatCard.classList.add('hidden');
+        // Limpiar y cerrar
+        document.getElementById('chat-name').value = '';
+        document.getElementById('participant-count').textContent = '1';
     }
 
     // Hacer las funciones globales
