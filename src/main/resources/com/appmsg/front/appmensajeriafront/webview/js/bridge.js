@@ -21,7 +21,7 @@ const Bridge = {
         }
     },
 
-    getChats(){
+    getChats() {
         if (!this.isReady() || typeof javaBridge.getChats !== "function") return;
         try {
             javaBridge.getChats();
@@ -62,7 +62,10 @@ const Bridge = {
         if (!this.isReady()) return;
         const fn = javaBridge.setChatId;
         if (typeof fn !== "function") return;
-        try { fn.call(javaBridge, chatId); } catch (_) {}
+        try {
+            fn.call(javaBridge, chatId);
+        } catch (_) {
+        }
     },
 
     /**
@@ -74,7 +77,8 @@ const Bridge = {
                 if (this.isReady() && typeof javaBridge.getBaseUrl === "function") {
                     this._baseUrl = javaBridge.getBaseUrl();
                 }
-            } catch (_) {}
+            } catch (_) {
+            }
             if (!this._baseUrl) this._baseUrl = "";
         }
         return this._baseUrl;
@@ -110,12 +114,8 @@ const Bridge = {
     },
     verifyRegister(code) {
         if (!this.isReady()) return;
-        try {
-            if (typeof javaBridge.verifyRegister === "function") {
-                javaBridge.verifyRegister(code);
-            }
-        } catch (e) {
-
+        if (typeof javaBridge.verifyRegister === "function") {
+            javaBridge.verifyRegister(code);
         }
     },
 
@@ -286,7 +286,18 @@ const Bridge = {
                 reject(e);
             }
         });
+    },
+    setLoading: function(isLoading, button) {
+    if (isLoading) {
+        document.body.classList.add("loading-cursor");
+        button.disabled = true;
+        button.style.opacity = "0.6";
+    } else {
+        document.body.classList.remove("loading-cursor");
+        button.disabled = false;
+        button.style.opacity = "";
     }
+}
 };
 
 /* Global callbacks */

@@ -150,3 +150,23 @@
     margin-left: 16px;
 }
 
+.password-error {
+    color: red !important;
+}
+
+.input-error {
+    border-color: red !important;
+}
+
+.error-text {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+}
+
+.loading-cursor {
+    cursor: wait !important;
+}
+
+

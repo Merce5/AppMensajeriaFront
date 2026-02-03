@@ -161,11 +161,9 @@ public class JavaBridge {
         if (loginResult.getUserId() == null || loginResult.getError() != null) {
             Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(loginResult)));
         } else {
+            Platform.runLater(() -> callJsFunction("orSuccessResult", gson.toJson(loginResult)));
             Session.setUserId(loginResult.getUserId());
-//          chatController.loadIndex();
             navigate("main.html");
-//          navigate("home.html");
-//        }
         }
 
     }
@@ -176,6 +174,7 @@ public class JavaBridge {
         if (response.getStatus().equals("error")) {
             Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(response)));
         } else {
+            Platform.runLater(() -> callJsFunction("orSuccessResult", gson.toJson(response)));
             chatController.loadVerification();
         }
     }
@@ -185,6 +184,7 @@ public class JavaBridge {
         if (response.getStatus().equals("error")) {
             Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(response)));
         } else {
+            Platform.runLater(() -> callJsFunction("orSuccessResult", gson.toJson(response)));
             Session.setUserId(response.getMessage());
             chatController.loadIndex();
         }
