@@ -1,14 +1,13 @@
 package com.appmsg.front.appmensajeriafront.model;
 
 /**
- * DTO para respuesta de invitación.
+ * DTO para respuesta de creación de chat.
  */
-public class InviteResponse {
+public class ChatCreateResponse {
     public boolean success;
     public String message;
     public String chatId;
     public String chatName;
-    public String inviteCode;
 
-    public InviteResponse() {}
+    public ChatCreateResponse() {}
 }

@@ -192,16 +192,60 @@ public class JavaBridge {
 
     // ===== Chat (WS) =====
 
+    /**
+     * Crea un nuevo chat de grupo y genera un enlace de invitación.
+     * @param chatName Nombre del chat
+     * @param maxParticipants Número máximo de participantes
+     * @param callbackFunction Función JS a invocar con el resultado
+     */
+    public void createNewChat(String chatName, int maxParticipants, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String userId = Session.getUserId();
+                if (userId == null || userId.isBlank()) {
+                    throw new Exception("No hay sesión de usuario");
+                }
+
+                // 1. Crear el chat
+                ChatCreateResponse chatResponse = chatService.createChat(chatName, userId, maxParticipants);
+                if (chatResponse == null || chatResponse.chatId == null) {
+                    System.out.println(chatResponse);
+                    throw new Exception("Error al crear el chat");
+                }
+
+                // 2. Generar enlace de invitación
+                var inviteResponse = inviteService.createInviteLink(chatResponse.chatId, userId);
+
+                // 3. Combinar respuesta
+                JsonObject result = new JsonObject();
+                result.addProperty("success", true);
+                result.addProperty("chatId", chatResponse.chatId);
+                result.addProperty("chatName", chatName);
+                result.addProperty("inviteCode", inviteResponse != null ? inviteResponse.inviteCode : "");
+
+                String json = gson.toJson(result);
+                Platform.runLater(() -> callJsFunction(callbackFunction, json));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                String errorJson = "{\"success\":false,\"message\":\"" + escape(e.getMessage()) + "\"}";
+                Platform.runLater(() -> callJsFunction(callbackFunction, errorJson));
+            }
+        });
+    }
+
     public void getChats() {
         CompletableFuture.runAsync(() -> {
             try {
                 List<ChatListItemDto> chats = chatService.getChats(Session.getUserId());
                 String json = gson.toJson(chats);
+                System.out.println("adadad");
                 Platform.runLater(() -> callJsFunction("onChatsReceived", json));
             } catch (Exception e) {
                 e.printStackTrace();
                 // En caso de error, podrías enviar una lista vacía o un objeto de error
                 Platform.runLater(() -> callJsFunction("onChatsReceived", "[]"));
+                System.out.println("Error");
             }
         });
     }

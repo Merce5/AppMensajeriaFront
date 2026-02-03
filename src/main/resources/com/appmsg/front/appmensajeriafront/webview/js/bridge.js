@@ -1,13 +1,27 @@
 /* Bridge */
 
 const Bridge = {
+    _readyCallbacks: [],
+    _bridgeReady: false,
+
     isReady() {
         return typeof window.javaBridge !== "undefined";
     },
 
     whenReady(callback) {
-        if (this.isReady()) callback();
-        else window.onBridgeReady = callback;
+        if (this.isReady() || this._bridgeReady) {
+            callback();
+        } else {
+            this._readyCallbacks.push(callback);
+        }
+    },
+
+    _executeReadyCallbacks() {
+        this._bridgeReady = true;
+        while (this._readyCallbacks.length > 0) {
+            const cb = this._readyCallbacks.shift();
+            try { cb(); } catch (e) { console.error('Error in whenReady callback:', e); }
+        }
     },
 
     getInitParams() {
@@ -21,7 +35,7 @@ const Bridge = {
         }
     },
 
-    getChats() {
+    getChats(){
         if (!this.isReady() || typeof javaBridge.getChats !== "function") return;
         try {
             javaBridge.getChats();
@@ -62,10 +76,7 @@ const Bridge = {
         if (!this.isReady()) return;
         const fn = javaBridge.setChatId;
         if (typeof fn !== "function") return;
-        try {
-            fn.call(javaBridge, chatId);
-        } catch (_) {
-        }
+        try { fn.call(javaBridge, chatId); } catch (_) {}
     },
 
     /**
@@ -77,8 +88,7 @@ const Bridge = {
                 if (this.isReady() && typeof javaBridge.getBaseUrl === "function") {
                     this._baseUrl = javaBridge.getBaseUrl();
                 }
-            } catch (_) {
-            }
+            } catch (_) {}
             if (!this._baseUrl) this._baseUrl = "";
         }
         return this._baseUrl;
@@ -287,6 +297,46 @@ const Bridge = {
             }
         });
     },
+
+    /**
+     * Crea un nuevo chat de grupo y genera un enlace de invitación.
+     * @param chatName Nombre del chat
+     * @param maxParticipants Número máximo de participantes
+     * @returns Promise con {success, chatId, chatName, inviteCode}
+     */
+    createNewChat(chatName, maxParticipants) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) {
+                reject(new Error("Bridge not ready"));
+                return;
+            }
+
+            const fn = javaBridge.createNewChat;
+            if (typeof fn !== "function") {
+                reject(new Error("createNewChat not available"));
+                return;
+            }
+
+            const callbackName = "_createChatCallback_" + Date.now();
+            window[callbackName] = function (responseJson) {
+                delete window[callbackName];
+                try {
+                    const response = JSON.parse(responseJson);
+                    if (response && response.success) resolve(response);
+                    else reject(new Error((response && (response.message || response.error)) || "Create chat failed"));
+                } catch (e) {
+                    reject(e);
+                }
+            };
+
+            try {
+                fn.call(javaBridge, chatName, maxParticipants, callbackName);
+            } catch (e) {
+                delete window[callbackName];
+                reject(e);
+            }
+        });
+    },
     setLoading: function(isLoading, button) {
     if (isLoading) {
         document.body.classList.add("loading-cursor");
@@ -301,6 +351,11 @@ const Bridge = {
 };
 
 /* Global callbacks */
+
+// Llamado por Java cuando el bridge está listo
+window.onBridgeReady = function() {
+    Bridge._executeReadyCallbacks();
+};
 
 window.onMessageReceived = function (messageJson) {
     try {

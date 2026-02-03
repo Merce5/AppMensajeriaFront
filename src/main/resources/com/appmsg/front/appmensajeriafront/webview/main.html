@@ -19,7 +19,13 @@
         <div class="topbar-spacer"></div>
 
         <div class="topbar-actions">
-            <button class="icon-btn" type="button" title="Nuevo chat">＋</button>
+            <button class="icon-btn" type="button" title="Unirse con enlace" onclick="Bridge.navigate('invite.html')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+            </button>
+            <button class="icon-btn" type="button" title="Nuevo chat" onclick="toggleNewChat()">＋</button>
             <button class="avatar-btn" type="button" title="Ajustes" onclick="Bridge.navigate('settings.html')">
         <span class="avatar-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -54,6 +60,102 @@
                 </div>
             </div>
         </section>
+
+        <!-- Menu creacion de chat -->
+        <section id="new-chat-card" class="card hidden">
+            <h3 class="card-title">Crear un nuevo chat</h3>
+            <div style="padding: var(--spacing-md) 0;">
+                <form id="new-chat-form">
+                    <!-- Nombre del chat -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                        <label for="chat-name" style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
+                            Nombre del chat
+                        </label>
+                        <input
+                                type="text"
+                                id="chat-name"
+                                placeholder="Escribe un nombre para el chat"
+                                style="width: 100%; padding: var(--spacing-sm); border: 1px solid var(--border); border-radius: var(--radius-sm);"
+                        />
+                    </div>
+
+                    <!-- Contador de participantes -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-lg);">
+                        <label style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
+                            Número de participantes
+                        </label>
+                        <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                            <button
+                                    type="button"
+                                    class="icon-btn"
+                                    onclick="changeParticipantCount(-1)"
+                                    style="border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"
+                            >
+                                −
+                            </button>
+                            <span
+                                    id="participant-count"
+                                    style="font-size: 1.5rem; min-width: 40px; text-align: center;"
+                            >
+                        1
+                    </span>
+                            <button
+                                    type="button"
+                                    class="icon-btn"
+                                    onclick="changeParticipantCount(1)"
+                                    style="border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"
+                            >
+                                ＋
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Campo de salida para enlace/código -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                        <label style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
+                            Enlace de invitación
+                        </label>
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <input
+                                    type="text"
+                                    id="invitation-link"
+                                    readonly
+                                    placeholder="Se generará al crear el chat"
+                                    style="flex: 1; padding: var(--spacing-sm); border: 1px solid var(--border); border-radius: var(--radius-sm); background-color: var(--surface-3); cursor: not-allowed;"
+                            />
+                            <button
+                                    type="button"
+                                    class="icon-btn"
+                                    onclick="copyInvitationLink()"
+                                    style="border-radius: var(--radius-sm); padding: var(--spacing-sm);"
+                                    title="Copiar enlace"
+                            >
+                                📋
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div id="create-buttons" style="display: flex; gap: var(--spacing-md);">
+                        <button type="button" class="btn btn-primary" onclick="createNewChat()">
+                            Crear chat
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="hideNewChat()">
+                            Cancelar
+                        </button>
+                    </div>
+                    <!-- Botones post-creacion (ocultos inicialmente) -->
+                    <div id="post-create-buttons" class="hidden" style="gap: var(--spacing-md); flex-wrap: wrap;">
+                        <button type="button" class="btn btn-primary" onclick="goToCreatedChat()">
+                            Ir al chat
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="hideNewChat()">
+                            Crear otro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
     </div>
 
     <!-- Estado sin chats -->
@@ -64,8 +166,142 @@
         </button>
     </div>
 </main>
-<script src="js/bridge.js"></script>
 <script>
+
+    function toggleNewChat() {
+        const newChatCard = document.getElementById('new-chat-card');
+        if (newChatCard.classList.contains('hidden')) {
+            newChatCard.classList.remove('hidden');
+        } else {
+            newChatCard.classList.add('hidden');
+        }
+    }
+
+    // Variable para guardar el chatId creado
+    let lastCreatedChatId = null;
+
+    function hideNewChat() {
+        const newChatCard = document.getElementById('new-chat-card');
+        newChatCard.classList.add('hidden');
+        // Limpiar formulario
+        document.getElementById('chat-name').value = '';
+        document.getElementById('participant-count').textContent = '1';
+        document.getElementById('invitation-link').value = '';
+        // Resetear botones
+        document.getElementById('create-buttons').classList.remove('hidden');
+        document.getElementById('post-create-buttons').classList.add('hidden');
+        lastCreatedChatId = null;
+    }
+
+    function goToCreatedChat() {
+        if (lastCreatedChatId) {
+            Bridge.setChatId(lastCreatedChatId);
+            Bridge.navigate('chat.html');
+        }
+    }
+
+    // Hacer las funciones globales
+    window.toggleNewChat = toggleNewChat;
+    window.hideNewChat = hideNewChat;
+    window.goToCreatedChat = goToCreatedChat;
+
+    // Funciones para el contador de participantes
+    function changeParticipantCount(delta) {
+        const countElement = document.getElementById('participant-count');
+        let currentCount = parseInt(countElement.textContent);
+        let newCount = currentCount + delta;
+
+        // No permitir valores menores a 1
+        if (newCount < 1) return;
+
+        countElement.textContent = newCount;
+    }
+
+    function createNewChat() {
+        const chatName = document.getElementById('chat-name').value.trim();
+        const participantCount = parseInt(document.getElementById('participant-count').textContent);
+        const createBtn = document.querySelector('#new-chat-form .btn-primary');
+        const invitationInput = document.getElementById('invitation-link');
+
+        // Validaciones básicas
+        if (!chatName) {
+            alert('Por favor, introduce un nombre para el chat');
+            return;
+        }
+
+        // Deshabilitar botón mientras se procesa
+        createBtn.disabled = true;
+        createBtn.textContent = 'Creando...';
+
+        Bridge.log(`Creando chat: ${chatName} con ${participantCount} participantes`);
+
+        Bridge.createNewChat(chatName, participantCount)
+            .then(response => {
+                Bridge.log('Chat creado: ' + JSON.stringify(response));
+
+                // Guardar el chatId creado
+                lastCreatedChatId = response.chatId;
+
+                // Mostrar el enlace de invitación
+                if (response.inviteCode) {
+                    invitationInput.value = response.inviteCode;
+                }
+
+                // Actualizar la lista de chats
+                Bridge.getChats();
+
+                // Cambiar a los botones post-creación
+                document.getElementById('create-buttons').classList.add('hidden');
+                document.getElementById('post-create-buttons').classList.remove('hidden');
+                document.getElementById('post-create-buttons').style.display = 'flex';
+            })
+            .catch(error => {
+                Bridge.log('Error creando chat: ' + error.message);
+                alert('Error al crear el chat: ' + error.message);
+            })
+            .finally(() => {
+                createBtn.disabled = false;
+                createBtn.textContent = 'Crear chat';
+            });
+    }
+
+    function copyInvitationLink() {
+    const invitationLinkInput = document.getElementById('invitation-link');
+    const link = invitationLinkInput.value;
+
+    if (!link) {
+        alert('No hay enlace para copiar. Crea un chat primero.');
+        return;
+    }
+
+    // Usar la API del portapapeles
+    navigator.clipboard.writeText(link)
+        .then(() => {
+            // Mostrar retroalimentación visual
+            const copyBtn = document.querySelector('button[onclick="copyInvitationLink()"]');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = '✅';
+            copyBtn.style.backgroundColor = 'var(--success)';
+
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.backgroundColor = '';
+            }, 1500);
+        })
+        .catch(err => {
+            console.error('Error al copiar: ', err);
+            // Fallback para navegadores antiguos
+            invitationLinkInput.select();
+            document.execCommand('copy');
+            alert('Enlace copiado al portapapeles');
+        });
+    }
+
+    // Hacer las funciones globales
+    window.changeParticipantCount = changeParticipantCount;
+    window.createNewChat = createNewChat;
+    window.copyInvitationLink = copyInvitationLink;
+
     (function () {
         function getInitials(name) {
             if (!name) return '?';
