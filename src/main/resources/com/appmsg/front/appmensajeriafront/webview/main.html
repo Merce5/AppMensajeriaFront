@@ -149,7 +149,7 @@
                         <button type="button" class="btn btn-primary" onclick="goToCreatedChat()">
                             Ir al chat
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="hideNewChat()">
+                        <button type="button" class="btn btn-secondary" onclick="clearNewChat()">
                             Crear otro
                         </button>
                     </div>
@@ -200,10 +200,24 @@
         }
     }
 
+    function clearNewChat() {
+        const newChatCard = document.getElementById('new-chat-card');
+        // Limpiar formulario
+        document.getElementById('chat-name').value = '';
+        document.getElementById('participant-count').textContent = '1';
+        document.getElementById('invitation-link').value = '';
+        // Resetear botones
+        document.getElementById('create-buttons').classList.remove('hidden');
+        document.getElementById('post-create-buttons').classList.add('hidden');
+        lastCreatedChatId = null;
+    }
+
+
     // Hacer las funciones globales
     window.toggleNewChat = toggleNewChat;
     window.hideNewChat = hideNewChat;
     window.goToCreatedChat = goToCreatedChat;
+    window.clearNewChat = clearNewChat;
 
     // Funciones para el contador de participantes
     function changeParticipantCount(delta) {
