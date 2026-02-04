@@ -50,7 +50,6 @@
     font-size: var(--font-size-lg);
     text-align: center;
     letter-spacing: 2px;
-    text-transform: uppercase;
 }
 
 .invite-form .btn-primary {

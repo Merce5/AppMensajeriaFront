@@ -7,11 +7,6 @@ const Invite = {
         const input = document.getElementById('invite-code');
         if (input) {
             input.focus();
-
-            // Auto-formatear el codigo (mayusculas)
-            input.addEventListener('input', (e) => {
-                e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            });
         }
     },
 
