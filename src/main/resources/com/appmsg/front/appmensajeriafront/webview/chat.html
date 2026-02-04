@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div class="chat-container">
+    <div class="chat-container" id="chat-main-container">
         <!-- Header del chat -->
         <header class="chat-header">
             <button class="btn-icon" onclick="Bridge.goBack()" title="Volver">
@@ -85,9 +85,25 @@
             javaBridge.loadSettings();
         }
     });
+
     function onSettingsLoaded(dto) {
         if (dto && typeof dto.darkMode !== "undefined") {
             Utils.applyTheme(!!dto.darkMode);
+        }
+        const container = document.getElementById('chat-main-container');
+        // Elimina cualquier clase anterior de fondo
+        container.classList.remove('force-red-bg', 'wallpaper-custom');
+        let styleTag = document.getElementById('wallpaper-style');
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'wallpaper-style';
+            document.head.appendChild(styleTag);
+        }
+        if (dto && dto.wallpaperPath) {
+            container.classList.add('wallpaper-custom');
+            styleTag.textContent = `.chat-container.wallpaper-custom { background: url('${dto.wallpaperPath}') center center / cover no-repeat fixed !important; }`;
+        } else {
+            styleTag.textContent = '';
         }
     }
     </script>
