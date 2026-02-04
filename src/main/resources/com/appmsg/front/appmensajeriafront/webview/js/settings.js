@@ -94,6 +94,7 @@ function onSettingsLoaded(dto) {
         Settings.setStatus("No hay ajustes guardados aún. Puedes crear los tuyos.");
         return;
     }
+    document.getElementById("displayName").value = !!dto.displayName;
     document.getElementById("darkMode").checked = !!dto.darkMode;
     const wp = document.getElementById("wallpaper");
     // Si el fondo guardado no está en el select, lo añade
