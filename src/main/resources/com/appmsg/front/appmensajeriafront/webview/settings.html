@@ -4,19 +4,19 @@
     <meta charset="UTF-8" />
     <title>Ajustes</title>
     <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/settings.css" />
     <script src="js/bridge.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/settings.js"></script>
 </head>
 
 <body>
-<!-- Topbar -->
 <header class="topbar">
     <div class="container topbar-inner">
-        <button class="icon-btn" type="button" title="Volver" onclick="Bridge.navigate('main.html')">←</button>
+        <button class="icon-btn" type="button" title="Volver" onclick="Bridge.navigate('main.html')">&#8592;</button>
         <div style="display: flex; flex-direction: column; gap: 2px;">
-            <div class="kicker" style="font-size: 13px; color: var(--muted); letter-spacing: 1px; font-weight: 700;">Cuenta</div>
-            <div class="app-title" style="font-size: 22px; font-weight: 900; color: var(--primary); margin-top: 2px;">Ajustes</div>
+            <div class="kicker settings-kicker">Cuenta</div>
+            <div class="app-title settings-title">Ajustes</div>
         </div>
 
         <div class="topbar-spacer"></div>
@@ -26,15 +26,23 @@
 </header>
 
 <main class="container page">
-    <div class="grid-2" style="gap: 32px;">
-        <!-- Apariencia -->
-        <section class="card">
+    <div class="grid-2 settings-grid">
+        <section class="card settings-card">
             <h3 class="card-title">Apariencia</h3>
 
-            <div class="row-between" style="margin-top: 18px; margin-bottom: 18px;">
+            <div class="field">
+                <label for="themeKey">Tema</label>
+                <div class="select-shell">
+                    <select id="themeKey" class="input settings-select"></select>
+                    <span class="select-shell-arrow" aria-hidden="true"></span>
+                </div>
+                <div class="muted">Elige entre varios estilos listos para usar.</div>
+            </div>
+
+            <div class="row-between settings-switch-row">
                 <div>
-                    <div style="font-weight: 900;">Modo oscuro</div>
-                    <div class="muted" style="margin-top: 2px;">Cambia el tema de la interfaz.</div>
+                    <div class="settings-strong">Modo oscuro</div>
+                    <div class="muted settings-subcopy">Cambia el tema de la interfaz.</div>
                 </div>
 
                 <label class="switch" title="Modo oscuro">
@@ -42,53 +50,67 @@
                 </label>
             </div>
 
-            <div style="height: 18px;"></div>
+            <div class="settings-spacer"></div>
 
             <div class="field">
                 <label for="wallpaper">Fondo del chat</label>
-                <div class="row">
-                    <select id="wallpaper"></select>
-                    <button class="btn btn-secondary" type="button" onclick="Settings.chooseWallpaper()">Elegir…</button>
+                <div class="media-picker-card">
+                    <div class="media-picker-top">
+                        <div class="select-shell media-picker-select">
+                            <select id="wallpaper" class="input settings-select"></select>
+                            <span class="select-shell-arrow" aria-hidden="true"></span>
+                        </div>
+                        <button class="btn btn-secondary settings-action-btn" type="button" onclick="Settings.chooseWallpaper()">Elegir archivo</button>
+                    </div>
+                    <div id="wallpaperMeta" class="media-picker-meta">Usando fondo predefinido</div>
+                    <div id="wallpaperPreview" class="settings-preview settings-preview-wallpaper"></div>
                 </div>
-                <div id="wallpaperPreview" style="margin-top:12px;text-align:center;"></div>
                 <div class="muted">
                     Puedes usar uno predefinido o seleccionar una imagen local.
                 </div>
             </div>
         </section>
 
-        <!-- Perfil -->
-        <section class="card">
+        <section class="card settings-card">
             <h3 class="card-title">Perfil</h3>
+
+            <div class="field">
+                <label>Foto de perfil</label>
+                <div class="media-picker-card media-picker-card-profile">
+                    <div class="profile-picker-top">
+                        <img id="profilePicturePreview" src="" alt="Foto de perfil" class="profile-picture-preview">
+                        <div class="profile-picker-copy">
+                            <div class="profile-picker-title">Imagen de perfil</div>
+                            <div id="profilePictureMeta" class="media-picker-meta">Usando avatar actual</div>
+                        </div>
+                        <button class="btn btn-secondary settings-action-btn" type="button" onclick="Settings.chooseProfilePicture()">Cambiar imagen</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-spacer"></div>
 
             <div class="field">
                 <label for="displayName">Nombre</label>
                 <input id="displayName" class="input" type="text" placeholder="Tu nombre" />
             </div>
 
-            <div style="height: 18px;"></div>
+            <div class="settings-spacer"></div>
 
             <div class="field">
                 <label for="status">Estado</label>
                 <input id="status" class="input" type="text" placeholder="Disponible" />
             </div>
 
-            <div style="height: 22px;"></div>
-
-            <div class="row" style="justify-content: flex-end;">
-                <button class="btn btn-primary" type="button" onclick="Settings.save()">Guardar</button>
+            <div class="settings-actions">
+                <button class="btn btn-primary settings-save-btn" type="button" onclick="Settings.save()">Guardar</button>
             </div>
 
-            <div class="muted" style="margin-top: 10px;">
+            <div class="muted settings-footer-note">
                 Estos cambios se guardan en tu perfil del backend.
             </div>
         </section>
     </div>
 </main>
-
-<script>
-    // Aplicación visual inmediata del theme (solo HTML/CSS).
-    // Tu settings.js ya hace dataset.theme cuando cambia el checkbox.
-</script>
 </body>
 </html>
