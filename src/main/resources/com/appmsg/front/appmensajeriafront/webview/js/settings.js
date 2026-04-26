@@ -1,13 +1,32 @@
 const Settings = {
+    selectedPicturePath: "",
+
+    describeSelection: function (path, fallbackText) {
+        if (!path) return fallbackText;
+        const cleanPath = path.split(/[\\/]/).pop() || path;
+        return cleanPath.length > 40 ? cleanPath.slice(0, 18) + "..." + cleanPath.slice(-16) : cleanPath;
+    },
+
     init: function () {
+        const theme = document.getElementById("themeKey");
         const wp = document.getElementById("wallpaper");
-        // Obtener wallpapers desde Java (URLs absolutas)
+
+        Utils.getThemeOptions().forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.value;
+            opt.textContent = item.label;
+            theme.appendChild(opt);
+        });
+
         let wallpapers = [];
         if (window.javaBridge && typeof javaBridge.getWallpapersJson === "function") {
             try {
                 wallpapers = JSON.parse(javaBridge.getWallpapersJson());
-            } catch (e) { wallpapers = []; }
+            } catch (e) {
+                wallpapers = [];
+            }
         }
+
         wallpapers.forEach(v => {
             const opt = document.createElement("option");
             opt.value = v;
@@ -15,28 +34,49 @@ const Settings = {
             wp.appendChild(opt);
         });
 
-        // Preview inicial
         this.updateWallpaperPreview(wp.value);
+        this.updateProfilePicturePreview("");
+
         wp.addEventListener("change", (e) => {
             this.updateWallpaperPreview(e.target.value);
         });
 
+        theme.addEventListener("change", (e) => {
+            const selected = Utils.themeLibrary[e.target.value] || Utils.themeLibrary.classic;
+            document.getElementById("darkMode").checked = !!selected.darkMode;
+            Utils.applyTheme({ darkMode: !!selected.darkMode, themeKey: e.target.value });
+        });
+
         document.getElementById("darkMode").addEventListener("change", (e) => {
-            document.documentElement.dataset.theme = e.target.checked ? "dark" : "light";
-            if (window.javaBridge && typeof javaBridge.setDarkMode === "function") javaBridge.setDarkMode(e.target.checked);
+            Utils.applyTheme({
+                darkMode: e.target.checked,
+                themeKey: document.getElementById("themeKey").value || "classic"
+            });
         });
 
         this.setStatus("Cargando ajustes...");
-        if (window.javaBridge && typeof javaBridge.loadSettings === "function") javaBridge.loadSettings();
+        if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
+            javaBridge.loadSettings();
+        }
     },
 
     updateWallpaperPreview: function (imgPath) {
         const preview = document.getElementById("wallpaperPreview");
+        const meta = document.getElementById("wallpaperMeta");
         if (!imgPath) {
             preview.innerHTML = "<span class='muted'>Sin fondo seleccionado</span>";
+            meta.textContent = "Sin fondo seleccionado";
             return;
         }
+        meta.textContent = this.describeSelection(imgPath, "Usando fondo predefinido");
         preview.innerHTML = `<img src="${imgPath}" alt="Preview" style="max-width:320px;max-height:180px;border-radius:8px;box-shadow:0 2px 8px #0002;">`;
+    },
+
+    updateProfilePicturePreview: function (imgPath) {
+        const preview = document.getElementById("profilePicturePreview");
+        const meta = document.getElementById("profilePictureMeta");
+        preview.src = imgPath || Utils.getDefaultAvatar();
+        meta.textContent = this.describeSelection(imgPath, "Usando avatar actual");
     },
 
     setStatus: function (msg) {
@@ -46,29 +86,38 @@ const Settings = {
     save: function () {
         const dto = {
             darkMode: document.getElementById("darkMode").checked,
+            themeKey: document.getElementById("themeKey").value,
             wallpaperPath: document.getElementById("wallpaper").value,
             displayName: document.getElementById("displayName").value,
-            status: document.getElementById("status").value
+            status: document.getElementById("status").value,
+            picturePath: this.selectedPicturePath
         };
         this.setStatus("Guardando...");
-        if (window.javaBridge && typeof javaBridge.saveSettings === "function") javaBridge.saveSettings(JSON.stringify(dto));
+        if (window.javaBridge && typeof javaBridge.saveSettings === "function") {
+            javaBridge.saveSettings(JSON.stringify(dto));
+        }
     },
 
     chooseWallpaper: function () {
-        // Abre el FileChooser de Java
         if (window.javaBridge && typeof javaBridge.chooseWallpaper === "function") {
             javaBridge.chooseWallpaper();
         } else {
             this.setStatus("No implementado: elegir archivo");
         }
-    }
-}
+    },
 
-// Recibe la imagen elegida desde Java y la añade como opción seleccionada
+    chooseProfilePicture: function () {
+        if (window.javaBridge && typeof javaBridge.chooseProfilePicture === "function") {
+            javaBridge.chooseProfilePicture();
+        } else {
+            this.setStatus("No implementado: elegir foto de perfil");
+        }
+    }
+};
+
 function onWallpaperChosen(obj) {
     if (!obj || !obj.uri) return;
     const wp = document.getElementById("wallpaper");
-    // Si ya existe, selecciona; si no, añade y selecciona
     let found = false;
     for (let i = 0; i < wp.options.length; i++) {
         if (wp.options[i].value === obj.uri) {
@@ -88,17 +137,24 @@ function onWallpaperChosen(obj) {
     Settings.setStatus("Fondo personalizado seleccionado");
 }
 
-// callbacks desde Java
+function onProfilePictureChosen(obj) {
+    if (!obj || !obj.uri) return;
+    Settings.selectedPicturePath = obj.uri;
+    Settings.updateProfilePicturePreview(obj.uri);
+    Settings.setStatus("Foto de perfil seleccionada");
+}
+
 function onSettingsLoaded(dto) {
     if (!dto) {
-        Settings.setStatus("No hay ajustes guardados aún. Puedes crear los tuyos.");
+        Settings.setStatus("No hay ajustes guardados aun. Puedes crear los tuyos.");
         return;
     }
-    document.getElementById("displayName").value = !!dto.displayName;
+
     document.getElementById("darkMode").checked = !!dto.darkMode;
+    document.getElementById("themeKey").value = dto.themeKey || (dto.darkMode ? "dark" : "classic");
+
     const wp = document.getElementById("wallpaper");
-    // Si el fondo guardado no está en el select, lo añade
-    if (dto.wallpaperPath && dto.wallpaperPath !== "") {
+    if (dto.wallpaperPath) {
         let found = false;
         for (let i = 0; i < wp.options.length; i++) {
             if (wp.options[i].value === dto.wallpaperPath) {
@@ -116,21 +172,25 @@ function onSettingsLoaded(dto) {
     } else {
         wp.value = "";
     }
-    // Forzar actualización de preview
+
     Settings.updateWallpaperPreview(wp.value);
     document.getElementById("displayName").value = dto.displayName || "";
     document.getElementById("status").value = dto.status || "";
-    // Aplica el tema global
-    Utils.applyTheme(!!dto.darkMode);
-    Settings.setStatus("Ajustes cargados.");
+    Settings.selectedPicturePath = dto.picturePath || "";
+    Settings.updateProfilePicturePreview(Settings.selectedPicturePath);
+    Utils.applyTheme(dto);
+    Settings.setStatus(dto.firstLogin ? "Primer acceso: revisa y guarda tu perfil." : "Ajustes cargados.");
 }
 
 function onSettingsSaved(saved) {
+    if (saved) {
+        Settings.selectedPicturePath = saved.picturePath || Settings.selectedPicturePath;
+        Settings.updateProfilePicturePreview(Settings.selectedPicturePath);
+    }
     Settings.setStatus("Guardado.");
 }
 
 function onSettingsError(errJsonString) {
-    // si lo mandas como string
     try {
         const err = JSON.parse(errJsonString);
         Settings.setStatus("Error: " + (err.message || "desconocido"));

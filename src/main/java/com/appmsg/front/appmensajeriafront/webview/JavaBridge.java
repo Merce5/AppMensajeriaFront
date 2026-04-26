@@ -110,6 +110,23 @@ public class JavaBridge {
         }
     }
 
+    public void chooseProfilePicture() {
+        Window w = webViewManager.getWebView().getScene() != null
+                ? webViewManager.getWebView().getScene().getWindow()
+                : null;
+        if (w == null) return;
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Elegir foto de perfil");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Imagenes", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
+        );
+        File f = fc.showOpenDialog(w);
+        if (f != null) {
+            Platform.runLater(() -> callJsFunctionObj("onProfilePictureChosen",
+                    gson.toJson(Map.of("uri", f.toURI().toString()))));
+        }
+    }
+
     // Utilidad para pasar objetos JSON a JS (parseados)
     private void callJsFunctionObj(String fn, String json) {
         String s = escape(json);
@@ -163,7 +180,12 @@ public class JavaBridge {
         } else {
             Platform.runLater(() -> callJsFunction("orSuccessResult", gson.toJson(loginResult)));
             Session.setUserId(loginResult.getUserId());
-            navigate("main.html");
+            try {
+                UserSettingsDto settings = settingsService.getSettings(loginResult.getUserId());
+                navigate(settings != null && settings.firstLogin ? "settings.html" : "main.html");
+            } catch (Exception e) {
+                navigate("settings.html");
+            }
         }
 
     }
@@ -186,7 +208,7 @@ public class JavaBridge {
         } else {
             Platform.runLater(() -> callJsFunction("orSuccessResult", gson.toJson(response)));
             Session.setUserId(response.getMessage());
-            chatController.loadIndex();
+            navigate("settings.html");
         }
     }
 

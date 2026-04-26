@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>AppMensajería</title>
 
-    <link rel="stylesheet" href="css/main.css"/>
-    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/main.css" />
     <script src="js/bridge.js"></script>
     <script src="js/utils.js"></script>
 </head>
@@ -56,6 +56,9 @@
             <h3 class="card-title">Recientes</h3>
             <div class="chats-container">
                 <div id="chats-list">
+                    <div class="loading-state">
+                        <p style="color:var(--muted);text-align:center;padding:var(--spacing-lg)">No tiene ningún chat</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -67,8 +70,7 @@
                 <form id="new-chat-form">
                     <!-- Nombre del chat -->
                     <div class="form-group" style="margin-bottom: var(--spacing-md);">
-                        <label for="chat-name"
-                               style="display: block; margin-bottom: var(--spacing-xs); color: var(--text) !important;">
+                        <label for="chat-name" style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
                             Nombre del chat
                         </label>
                         <input
@@ -156,6 +158,14 @@
                 </form>
             </div>
         </section>
+    </div>
+
+    <!-- Estado sin chats -->
+    <div id="empty-state" class="card hidden" style="text-align:center;padding:var(--spacing-xl)">
+        <p style="color:var(--muted);margin-bottom:var(--spacing-md)">No tienes conversaciones</p>
+        <button class="icon-btn" type="button" onclick="Bridge.navigate('invite.html')" style="padding:8px 16px">
+            Unirse con enlace
+        </button>
     </div>
 </main>
 <script>
@@ -310,7 +320,7 @@
         }
 
         function escapeHtml(text) {
-            let d = document.createElement('div');
+            var d = document.createElement('div');
             d.textContent = text;
             return d.innerHTML;
         }
@@ -324,33 +334,30 @@
         window.openChat = openChat;
 
         function renderChats(chats) {
-            let container = document.getElementById('chats-list');
+            var container = document.getElementById('chats-list');
+            var emptyState = document.getElementById('empty-state');
 
-            if (!Array.isArray(chats) || chats.length === 0) {
-                container.innerHTML = `
-            <div class="loading-state">
-                <p style="color:var(--muted);text-align:center;padding:var(--spacing-lg)">
-                    No tiene ningún chat
-                </p>
-            </div>
-        `;
+            if (!chats || chats.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
                 return;
             }
 
+            emptyState.classList.add('hidden');
             container.innerHTML = chats.map(function (chat) {
-                let name = chat.chatName || chat.name || 'Chat';
-                let image = chat.chatImage || chat.image || '';
-                let initials = getInitials(name);
-                let avatar = image
+                var name = chat.chatName || chat.name || 'Chat';
+                var image = chat.chatImage || chat.image || '';
+                var initials = getInitials(name);
+                var avatar = image
                     ? '<img src="' + image + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">'
                     : initials;
-                let preview = chat.lastMessage ? escapeHtml(chat.lastMessage) : '';
-                let time = chat.lastMessageTime || '';
+                var preview = chat.lastMessage ? escapeHtml(chat.lastMessage) : '';
+                var time = chat.lastMessageTime || '';
 
                 return '<button class="chat-row" type="button" onclick="openChat(\'' + chat.id + '\')">'
                     + '<div class="chat-avatar">' + avatar + '</div>'
                     + '<div class="grow">'
-                    + '  <div class="chat-name" style="color: var(--text)">' + escapeHtml(name) + '</div>'
+                    + '  <div class="chat-name">' + escapeHtml(name) + '</div>'
                     + '  <div class="chat-preview">' + preview + '</div>'
                     + '</div>'
                     + '<div class="chat-time">' + escapeHtml(time) + '</div>'
@@ -360,7 +367,7 @@
 
         // Callback que invoca Java con la lista de chats
         window.onChatsReceived = function (result) {
-            let chats = (typeof result === 'string') ? JSON.parse(result) : result;
+            var chats = (typeof result === 'string') ? JSON.parse(result) : result;
             renderChats(chats);
         };
 
@@ -370,18 +377,17 @@
             Bridge.getChats();
         });
     })();
-
+    
     Bridge.whenReady(() => {
-        if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
-            javaBridge.loadSettings();
-        }
-    });
-
-    function onSettingsLoaded(dto) {
-        if (dto && typeof dto.darkMode !== "undefined") {
-            Utils.applyTheme(!!dto.darkMode);
-        }
+    if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
+        javaBridge.loadSettings();
     }
+});
+function onSettingsLoaded(dto) {
+    if (dto && typeof dto.darkMode !== "undefined") {
+        Utils.applyTheme(!!dto.darkMode);
+    }
+}
 </script>
 
 </body>

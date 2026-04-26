@@ -26,12 +26,7 @@ const Profile = {
         const content = document.getElementById('profile-content');
 
         const isOnline = profile.status === 'Online' || profile.status === 'En linea';
-        const defaultAvatar = 'data:image/svg+xml,' + encodeURIComponent(`
-            <svg viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
-            </svg>
-        `);
+        const defaultAvatar = Utils.getDefaultAvatar();
 
         content.innerHTML = `
             <div class="profile-avatar-section">
@@ -96,7 +91,7 @@ Bridge.whenReady(() => {
 
 // Recibe los ajustes y aplica el tema
 function onSettingsLoaded(dto) {
-    if (dto && typeof dto.darkMode !== "undefined") {
-        Utils.applyTheme(!!dto.darkMode);
+    if (dto) {
+        Utils.applyTheme(dto);
     }
 }

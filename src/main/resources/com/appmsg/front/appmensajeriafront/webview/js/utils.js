@@ -2,6 +2,14 @@
  * Utilidades comunes para todas las vistas
  */
 const Utils = {
+    themeLibrary: {
+        classic: { label: 'Clasico', darkMode: false },
+        dark: { label: 'Noche', darkMode: true },
+        ocean: { label: 'Oceano', darkMode: false },
+        forest: { label: 'Bosque', darkMode: false },
+        sunset: { label: 'Atardecer', darkMode: false },
+        graphite: { label: 'Grafito', darkMode: true }
+    },
 
     // ==================== FORMATEO ====================
 
@@ -122,8 +130,33 @@ const Utils = {
      * Aplica el tema global (oscuro o claro) en toda la app
      * @param {boolean} darkMode
      */
-    applyTheme: function(darkMode) {
-        document.documentElement.dataset.theme = darkMode ? "dark" : "light";
+    applyTheme: function(themeConfig) {
+        const config = typeof themeConfig === "object" && themeConfig !== null
+            ? themeConfig
+            : { darkMode: !!themeConfig };
+        const themeKey = config.themeKey && this.themeLibrary[config.themeKey]
+            ? config.themeKey
+            : (config.darkMode ? "dark" : "classic");
+
+        document.documentElement.dataset.theme = config.darkMode ? "dark" : "light";
+        document.documentElement.dataset.themeVariant = themeKey;
+    },
+
+    getThemeOptions: function() {
+        return Object.entries(this.themeLibrary).map(([value, theme]) => ({
+            value,
+            label: theme.label,
+            darkMode: !!theme.darkMode
+        }));
+    },
+
+    getDefaultAvatar: function() {
+        return 'data:image/svg+xml,' + encodeURIComponent(`
+            <svg viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+            </svg>
+        `);
     },
 
     /**

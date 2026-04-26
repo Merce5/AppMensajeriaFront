@@ -87,8 +87,8 @@
     });
 
     function onSettingsLoaded(dto) {
-        if (dto && typeof dto.darkMode !== "undefined") {
-            Utils.applyTheme(!!dto.darkMode);
+        if (dto) {
+            Utils.applyTheme(dto);
         }
         const container = document.getElementById('chat-main-container');
         // Elimina cualquier clase anterior de fondo

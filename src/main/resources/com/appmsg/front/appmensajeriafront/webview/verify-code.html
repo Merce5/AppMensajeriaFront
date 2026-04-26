@@ -34,8 +34,8 @@ Bridge.whenReady(() => {
     }
 });
 function onSettingsLoaded(dto) {
-    if (dto && typeof dto.darkMode !== "undefined") {
-        Utils.applyTheme(!!dto.darkMode);
+    if (dto) {
+        Utils.applyTheme(dto);
     }
 }
 </script>

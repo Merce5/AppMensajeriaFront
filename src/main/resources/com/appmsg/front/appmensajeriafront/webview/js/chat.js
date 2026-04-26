@@ -48,8 +48,8 @@ const Chat = {
 
     // Recibe los ajustes y aplica el tema
     onSettingsLoaded: function(dto) {
-        if (dto && typeof dto.darkMode !== "undefined") {
-            Utils.applyTheme(!!dto.darkMode);
+        if (dto) {
+            Utils.applyTheme(dto);
         }
         // Aplicar fondo de chat si hay wallpaper
         if (dto && dto.wallpaperPath) {
