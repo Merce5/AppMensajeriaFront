@@ -65,7 +65,7 @@
                        placeholder="Escribe un mensaje..."
                        autocomplete="off"
                        onkeyup="Chat.handleTyping(event)"
-                       onkeypress="Chat.handleKeyPress(event)">
+                       onkeydown="Chat.handleKeyPress(event)">
 
                 <button class="btn-send" onclick="Chat.sendMessage()" title="Enviar">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -85,6 +85,7 @@
             javaBridge.loadSettings();
         }
     });
+    window.Chat = Chat;
 
     function onSettingsLoaded(dto) {
         if (dto) {
