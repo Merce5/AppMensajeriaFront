@@ -272,6 +272,25 @@ public class JavaBridge {
         });
     }
 
+    /**
+     * Carga mensajes de un chat con paginación.
+     * @param chatId ID del chat
+     * @param callbackFunction Función JS a invocar con el resultado
+     */
+    public void loadMessages(String chatId, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                List<ChatMessage> messages = chatService.getMessages(chatId);
+                String json = gson.toJson(messages);
+                Platform.runLater(() -> callJsFunction(callbackFunction, json));
+            } catch (Exception e) {
+                e.printStackTrace();
+                String errorJson = "{\"success\":false,\"error\":\"" + escape(e.getMessage()) + "\",\"messages\":[]}";
+                Platform.runLater(() -> callJsFunction(callbackFunction, errorJson));
+            }
+        });
+    }
+
     public void connectToChat(String chatId) {
         String userId = Session.getUserId();
 
