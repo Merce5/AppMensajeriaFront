@@ -43,6 +43,7 @@ public class JavaBridge {
     private final PageLoader pageLoader;
     private final LoginService loginService;
     private final SettingsService settingsService;
+    private final ContactService contactService;
 
     // constructor
     public JavaBridge(WebViewManager webViewManager, Map<String, String> initParams, PageLoader pageLoader) {
@@ -58,6 +59,7 @@ public class JavaBridge {
         this.loginService = new LoginService();
         this.chatService = new ChatService();
         this.settingsService = new SettingsService();
+        this.contactService = new ContactService();
     }
 
     // ===== Settings (expuestos a JS) =====
@@ -528,6 +530,110 @@ public class JavaBridge {
     public void updateProfile(String profileJson, String callbackFunction) {
         String errorJson = "{\"success\":false,\"message\":\"updateProfile no implementado en backend\"}";
         Platform.runLater(() -> callJsFunction(callbackFunction, errorJson));
+    }
+
+    // ===== Contacts ====
+    public void getContacts() {
+
+        try {
+
+            String userId = Session.getUserId();
+
+            String contactsJson = contactService.getContacts(userId);
+
+            Platform.runLater(() ->
+                    callJsFunction(
+                            "onContactsReceived",
+                            contactsJson
+                    )
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            Platform.runLater(() ->
+                    callJsFunction(
+                            "onContactsError",
+                            "{\"error\":\"Error cargando contactos\"}"
+                    )
+            );
+        }
+    }
+
+    public void addContact(String identifier) {
+
+        try {
+
+            String userId = Session.getUserId();
+
+            String response = contactService.addContact(userId, identifier);
+
+            Platform.runLater(() ->
+                    callJsFunction(
+                            "onContactActionResult",
+                            response
+                    )
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            Platform.runLater(() ->
+                    callJsFunction(
+                            "onContactActionResult",
+                            "{\"error\":\"Error de conexión\"}"
+                    )
+            );
+        }
+    }
+
+    public void removeContact(String contactId) {
+
+        try {
+
+            String userId = Session.getUserId();
+
+            contactService.removeContact(userId, contactId);
+
+            getContacts();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            Platform.runLater(() ->
+                    callJsFunction(
+                            "onContactsError",
+                            "{\"error\":\"Error eliminando contacto\"}"
+                    )
+            );
+        }
+    }
+
+    public void openPrivateChat(String contactId) {
+
+        try {
+
+            String userId = Session.getUserId();
+
+            ChatCreateResponse response =
+                    chatService.openPrivateChat(userId, contactId);
+
+            String json = gson.toJson(response);
+
+            Platform.runLater(() ->
+                    callJsFunction("onPrivateChatOpened", json)
+            );
+
+        } catch (Exception e) {
+
+            Platform.runLater(() ->
+                    callJsFunction("onPrivateChatOpened",
+                            "{\"error\":\"" + e.getMessage() + "\"}")
+            );
+        }
     }
 
     // ===== Navigation (SPA) =====

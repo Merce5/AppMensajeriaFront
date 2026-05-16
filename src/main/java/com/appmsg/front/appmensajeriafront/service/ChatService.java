@@ -144,25 +144,48 @@ public class ChatService {
         int responseCode = conn.getResponseCode();
 
         if (responseCode == 200) {
+
             String response = readResponse(conn.getInputStream());
-            com.google.gson.JsonArray jsonArray = com.google.gson.JsonParser.parseString(response).getAsJsonArray();
+
+            com.google.gson.JsonArray jsonArray =
+                    com.google.gson.JsonParser.parseString(response).getAsJsonArray();
+
             List<ChatMessage> messages = new ArrayList<>();
 
             for (com.google.gson.JsonElement element : jsonArray) {
+
                 com.google.gson.JsonObject obj = element.getAsJsonObject();
+
                 ChatMessage msg = new ChatMessage();
 
-                msg.messageId = parseObjectIdOrString(obj.get("_messageId"));
-                msg.chatId = parseObjectIdOrString(obj.get("_chatId"));
-                msg.senderId = parseObjectIdOrString(obj.get("_senderId"));
-                msg.message = obj.has("_message") ? obj.get("_message").getAsString() : null;
-                msg.status = obj.has("_status") ? obj.get("_status").getAsString() : null;
-                msg.timestamp = obj.has("_timestamp") ? obj.get("_timestamp").getAsString() : null;
-                msg.type = obj.has("_type") ? obj.get("_type").getAsString() : null;
+                msg.messageId = parseObjectIdOrString(obj.get("messageId"));
+                msg.chatId = parseObjectIdOrString(obj.get("chatId"));
+                msg.senderId = parseObjectIdOrString(obj.get("senderId"));
+                msg.username =  parseObjectIdOrString(obj.get("username"));
 
-                if (obj.has("_multimedia") && obj.get("_multimedia").isJsonArray()) {
+                msg.message = obj.has("message")
+                        ? obj.get("message").getAsString()
+                        : null;
+
+                msg.status = obj.has("status")
+                        ? obj.get("status").getAsString()
+                        : null;
+
+                msg.type = obj.has("type")
+                        ? obj.get("type").getAsString()
+                        : null;
+
+                msg.timestamp = obj.has("timestamp")
+                        ? obj.get("timestamp").getAsString()
+                        : null;
+
+                // multimedia
+                if (obj.has("multimedia") && obj.get("multimedia").isJsonArray()) {
                     msg.multimedia = new ArrayList<>();
-                    for (com.google.gson.JsonElement multimediaItem : obj.get("_multimedia").getAsJsonArray()) {
+
+                    for (com.google.gson.JsonElement multimediaItem :
+                            obj.getAsJsonArray("multimedia")) {
+
                         msg.multimedia.add(multimediaItem.getAsString());
                     }
                 }
@@ -171,9 +194,55 @@ public class ChatService {
             }
 
             return messages;
+
         } else {
             String error = readResponse(conn.getErrorStream());
             throw new Exception("Error " + responseCode + ": " + error);
+        }
+    }
+
+    public ChatCreateResponse openPrivateChat(String userId, String contactId) throws Exception {
+
+        String urlStr = ApiConfig.BASE_API_URL + CHAT_PATH;
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setRequestProperty("Accept", "application/json");
+
+        // BODY REQUEST
+        com.google.gson.JsonObject body = new com.google.gson.JsonObject();
+
+        body.addProperty("action", "openPrivateChat");
+        body.addProperty("userId", userId);
+        body.addProperty("contactId", contactId);
+
+        try (java.io.OutputStream os = conn.getOutputStream()) {
+            os.write(gson.toJson(body).getBytes("UTF-8"));
+        }
+
+        int responseCode = conn.getResponseCode();
+
+        String response = readResponse(
+                responseCode >= 200 && responseCode < 300
+                        ? conn.getInputStream()
+                        : conn.getErrorStream()
+        );
+
+        ChatCreateResponse chatResponse =
+                gson.fromJson(response, ChatCreateResponse.class);
+
+        if (responseCode >= 200 && responseCode < 300) {
+            return chatResponse;
+        } else {
+
+            if (chatResponse != null && chatResponse.message != null) {
+                throw new Exception(chatResponse.message);
+            }
+
+            throw new Exception("Error al abrir chat privado");
         }
     }
 

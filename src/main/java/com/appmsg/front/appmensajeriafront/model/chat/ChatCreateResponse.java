@@ -9,5 +9,7 @@ public class ChatCreateResponse {
     public String chatId;
     public String chatName;
 
+    public boolean existing;
+
     public ChatCreateResponse() {}
 }

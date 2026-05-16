@@ -34,6 +34,7 @@
           </svg>
         </span>
             </button>
+            <button class="icon-btn" type="button" title="Contactos" onclick="toggleContacts()">👥</button>
         </div>
     </div>
 </header>
@@ -157,6 +158,35 @@
                     </div>
                 </form>
             </div>
+        </section>
+        <section id="contacts-panel" class="card hidden">
+            <div class="row-between">
+                <h3 class="card-title">Contactos</h3>
+
+                <button
+                        class="icon-btn"
+                        onclick="toggleContacts()"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+                <input
+                        type="text"
+                        id="new-contact-identifier"
+                        placeholder="Username o email"
+                        style="flex: 1; padding: 8px;"
+                />
+
+                <button class="btn btn-primary" onclick="addContact()">
+                    Añadir
+                </button>
+            </div>
+
+            <div id="contacts-list">
+            </div>
+            <div id="error-card"></div>
         </section>
     </div>
 
@@ -388,6 +418,119 @@ function onSettingsLoaded(dto) {
         Utils.applyTheme(!!dto.darkMode);
     }
 }
+    function toggleContacts() {
+        const panel = document.getElementById('contacts-panel');
+
+        panel.classList.toggle('hidden');
+
+        if (!panel.classList.contains('hidden')) {
+            Bridge.getContacts();
+        }
+    }
+    function addContact() {
+        const identifier = document.getElementById('new-contact-identifier').value.trim();
+
+        if (!identifier) {
+            alert("Introduce username o email");
+            return;
+        }
+
+        Bridge.addContact(identifier);
+    }
+    function removeContact(contactId) {
+
+        Bridge.removeContact(contactId);
+    }
+    function renderContacts(contacts) {
+
+        const container = document.getElementById('contacts-list');
+
+        if (!contacts || contacts.length === 0) {
+            container.innerHTML = '<p>No tienes contactos</p>';
+            return;
+        }
+
+        container.innerHTML = contacts.map(contact => {
+
+            return `
+            <div class="contact-row"
+                 onclick="openDirectChat('${contact.id}', '${contact.username}')">
+
+                <div class="chat-avatar">
+                    <img src="${contact.picture}"
+                         style="width:100%;height:100%;border-radius:50%;object-fit:cover">
+                </div>
+
+                <div class="grow">
+                    <div class="chat-name">${contact.username}</div>
+                    <div class="chat-preview">${contact.email}</div>
+                </div>
+
+                <!-- BOTÓN ELIMINAR -->
+                <button class="delete-contact-btn"
+                        onclick="event.stopPropagation(); removeContact('${contact.id}')">
+                    ❌
+                </button>
+
+            </div>
+        `;
+        }).join('');
+    }
+    function openDirectChat(contactId, contactName) {
+        Bridge.openPrivateChat(contactId)
+    }
+    window.onContactsReceived = function(result) {
+
+        const response =
+            typeof result === 'string'
+                ? JSON.parse(result)
+                : result;
+
+        renderContacts(response.contacts);
+    };
+    window.onContactsError = function(error) {
+
+        const data =
+            typeof error === "string"
+                ? JSON.parse(error)
+                : error;
+
+        if (data.error) {
+            document.getElementById("error-card").textContent = typeof data.error === "string" ? data.error : "Error";
+            return;
+        }
+    };
+    window.onContactActionResult = function (result) {
+
+        const data =
+            typeof result === "string"
+                ? JSON.parse(result)
+                : result;
+
+        if (data.error) {
+            document.getElementById("error-card").textContent = typeof data.error === "string" ? data.error : "Error";
+            return;
+        }
+
+        console.log("OK:", data.message);
+
+        // refrescar lista
+        Bridge.getContacts();
+    };
+    window.onPrivateChatOpened = function(result) {
+
+        const data = typeof result === "string"
+            ? JSON.parse(result)
+            : result;
+
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        Bridge.setChatId(data.chatId);
+        Bridge.navigate("chat.html");
+    };
 </script>
 
 </body>
