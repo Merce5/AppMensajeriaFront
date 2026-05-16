@@ -1,14 +1,19 @@
 package com.appmsg.front.appmensajeriafront.service;
 
-import com.appmsg.front.appmensajeriafront.model.UserProfile;
+import com.appmsg.front.appmensajeriafront.model.user.UserProfile;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 /**

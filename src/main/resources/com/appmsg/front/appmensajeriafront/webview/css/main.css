@@ -275,3 +275,34 @@
     justify-content: flex-end;
     margin-top: 16px;
 }
+.contact-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.contact-row:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.delete-contact-btn {
+    background: #ff3b30;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+}
+
+.delete-contact-btn:hover {
+    background: #d70015;
+}

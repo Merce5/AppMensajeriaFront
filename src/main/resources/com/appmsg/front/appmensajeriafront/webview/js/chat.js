@@ -270,6 +270,7 @@ let Chat = {
 
     renderMessage: function(msg) {
         const container = document.getElementById('messages');
+        Bridge.log('senderId ' + msg.senderId + ' userId ' + this.userId + ' isOwn ' + (msg.senderId === this.userId))
         const isOwn = msg.senderId === this.userId;
 
         const div = document.createElement('div');

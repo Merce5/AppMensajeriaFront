@@ -17,7 +17,7 @@ const Utils = {
      * Formatea un timestamp a hora (HH:MM)
      */
     formatTime: function(timestamp) {
-        const date = new Date(timestamp);
+        const date = new Date(Number(timestamp));
         return date.toLocaleTimeString('es-ES', {
             hour: '2-digit',
             minute: '2-digit'
@@ -28,7 +28,7 @@ const Utils = {
      * Formatea un timestamp a fecha
      */
     formatDate: function(timestamp) {
-        const date = new Date(timestamp);
+        const date = new Date(Number(timestamp));
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);

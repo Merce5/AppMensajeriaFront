@@ -376,16 +376,45 @@ const Bridge = {
         });
     },
     setLoading: function(isLoading, button) {
-    if (isLoading) {
-        document.body.classList.add("loading-cursor");
-        button.disabled = true;
-        button.style.opacity = "0.6";
-    } else {
-        document.body.classList.remove("loading-cursor");
-        button.disabled = false;
-        button.style.opacity = "";
+        if (isLoading) {
+            document.body.classList.add("loading-cursor");
+            button.disabled = true;
+            button.style.opacity = "0.6";
+        } else {
+            document.body.classList.remove("loading-cursor");
+            button.disabled = false;
+            button.style.opacity = "";
+        }
+    },
+    getContacts() {
+        if (!this.isReady()) return;
+
+        if (typeof javaBridge.getContacts === "function") {
+            javaBridge.getContacts();
+        }
+    },
+
+    addContact(identifier) {
+        if (!this.isReady()) return;
+
+        if (typeof javaBridge.addContact === "function") {
+            javaBridge.addContact(identifier);
+        }
+    },
+
+    removeContact(contactId) {
+        if (!this.isReady()) return;
+
+        if (typeof javaBridge.removeContact === "function") {
+            javaBridge.removeContact(contactId);
+        }
+    },
+};
+
+Bridge.openPrivateChat = function(contactId) {
+    if (javaBridge && javaBridge.openPrivateChat) {
+        javaBridge.openPrivateChat(contactId);
     }
-}
 };
 
 /* Global callbacks */

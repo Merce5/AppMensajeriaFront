@@ -2,7 +2,7 @@ package com.appmsg.front.appmensajeriafront.service;
 
 import com.appmsg.front.appmensajeriafront.model.ResponseBase;
 import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
-import com.appmsg.front.appmensajeriafront.model.UserDto;
+import com.appmsg.front.appmensajeriafront.model.user.UserDto;
 import com.google.gson.Gson;
 
 import java.io.IOException;
