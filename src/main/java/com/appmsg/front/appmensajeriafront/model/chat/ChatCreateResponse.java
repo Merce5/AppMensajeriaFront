@@ -1,4 +1,4 @@
-package com.appmsg.front.appmensajeriafront.model;
+package com.appmsg.front.appmensajeriafront.model.chat;
 
 /**
  * DTO para respuesta de creación de chat.

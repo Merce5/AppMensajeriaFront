@@ -1,4 +1,4 @@
-package com.appmsg.front.appmensajeriafront.model;
+package com.appmsg.front.appmensajeriafront.model.user;
 
 public class UserDto {
     private String email;

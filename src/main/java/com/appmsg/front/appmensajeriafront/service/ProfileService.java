@@ -1,6 +1,6 @@
 package com.appmsg.front.appmensajeriafront.service;
 
-import com.appmsg.front.appmensajeriafront.model.UserProfile;
+import com.appmsg.front.appmensajeriafront.model.user.UserProfile;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;

@@ -2,6 +2,13 @@ package com.appmsg.front.appmensajeriafront.webview;
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.*;
 import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
+import com.appmsg.front.appmensajeriafront.model.chat.ChatCreateResponse;
+import com.appmsg.front.appmensajeriafront.model.chat.ChatListItemDto;
+import com.appmsg.front.appmensajeriafront.model.chat.ChatMessage;
+import com.appmsg.front.appmensajeriafront.model.chat.UploadResponse;
+import com.appmsg.front.appmensajeriafront.model.user.UserDto;
+import com.appmsg.front.appmensajeriafront.model.user.UserProfile;
+import com.appmsg.front.appmensajeriafront.model.user.UserSettingsDto;
 import com.appmsg.front.appmensajeriafront.service.*;
 import com.appmsg.front.appmensajeriafront.session.Session;
 import com.appmsg.front.appmensajeriafront.ui.chat.ChatController;
@@ -78,7 +85,7 @@ public class JavaBridge {
     }
 
     public void saveSettings(String json) {
-        com.appmsg.front.appmensajeriafront.model.UserSettingsDto dto = gson.fromJson(json, com.appmsg.front.appmensajeriafront.model.UserSettingsDto.class);
+        UserSettingsDto dto = gson.fromJson(json, UserSettingsDto.class);
         dto.userId = Session.getUserId();
         CompletableFuture.supplyAsync(() -> {
                     try { return settingsService.saveSettings(dto); }

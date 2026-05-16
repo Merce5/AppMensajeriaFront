@@ -1,9 +1,9 @@
 package com.appmsg.front.appmensajeriafront.service;
 
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
-import com.appmsg.front.appmensajeriafront.model.ChatCreateResponse;
-import com.appmsg.front.appmensajeriafront.model.ChatListItemDto;
-import com.appmsg.front.appmensajeriafront.model.ChatMessage;
+import com.appmsg.front.appmensajeriafront.model.chat.ChatCreateResponse;
+import com.appmsg.front.appmensajeriafront.model.chat.ChatListItemDto;
+import com.appmsg.front.appmensajeriafront.model.chat.ChatMessage;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

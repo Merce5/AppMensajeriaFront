@@ -1,6 +1,6 @@
 package com.appmsg.front.appmensajeriafront.service;
 
-import com.appmsg.front.appmensajeriafront.model.UploadResponse;
+import com.appmsg.front.appmensajeriafront.model.chat.UploadResponse;
 import com.google.gson.Gson;
 
 import java.io.*;
