@@ -450,7 +450,7 @@
 });
 function onSettingsLoaded(dto) {
     if (dto && typeof dto.darkMode !== "undefined") {
-        Utils.applyTheme(!!dto.darkMode);
+        Utils.applyTheme(dto);
     }
 }
     function toggleContacts() {
@@ -492,7 +492,7 @@ function onSettingsLoaded(dto) {
                  onclick="openDirectChat('${contact.id}', '${contact.username}')">
 
                 <div class="chat-avatar">
-                    <img src="${contact.picture}"
+                    <img src="${Bridge.resolveFileUrl(contact.picture || Utils.getDefaultAvatar())}"
                          style="width:100%;height:100%;border-radius:50%;object-fit:cover">
                 </div>
 

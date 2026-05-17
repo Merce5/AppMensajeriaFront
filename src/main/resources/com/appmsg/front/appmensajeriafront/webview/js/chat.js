@@ -49,9 +49,10 @@ let Chat = {
         }
         // Aplicar fondo de chat si hay wallpaper
         if (dto && dto.wallpaperPath) {
+            const wallpaperUrl = Bridge.resolveFileUrl(dto.wallpaperPath);
             const messages = document.getElementById('messages');
             if (messages) {
-                messages.style.backgroundImage = `url('${dto.wallpaperPath}')`;
+                messages.style.backgroundImage = `url('${wallpaperUrl}')`;
                 messages.style.backgroundSize = 'cover';
                 messages.style.backgroundPosition = 'center';
                 messages.style.backgroundRepeat = 'no-repeat';
@@ -218,8 +219,9 @@ let Chat = {
 
         listEl.innerHTML = members.map(m => {
             const initials = (m.username || '?').charAt(0).toUpperCase();
+            const avatarUrl = m.picture ? Bridge.resolveFileUrl(m.picture) : '';
             const avatarHtml = m.picture
-                ? `<div class="member-avatar"><img src="${Utils.escapeHtml(m.picture)}" alt="" onerror="this.parentElement.textContent='${initials}'"></div>`
+                ? `<div class="member-avatar"><img src="${Utils.escapeHtml(avatarUrl)}" alt="" onerror="this.parentElement.textContent='${initials}'"></div>`
                 : `<div class="member-avatar">${initials}</div>`;
             return `<div class="member-item">${avatarHtml}<span class="member-name">${Utils.escapeHtml(m.username || 'Usuario')}</span></div>`;
         }).join('');

@@ -69,13 +69,13 @@ const Settings = {
             return;
         }
         meta.textContent = this.describeSelection(imgPath, "Usando fondo predefinido");
-        preview.innerHTML = `<img src="${imgPath}" alt="Preview" style="max-width:320px;max-height:180px;border-radius:8px;box-shadow:0 2px 8px #0002;">`;
+        preview.innerHTML = `<img src="${Bridge.resolveFileUrl(imgPath)}" alt="Preview" style="max-width:320px;max-height:180px;border-radius:8px;box-shadow:0 2px 8px #0002;">`;
     },
 
     updateProfilePicturePreview: function (imgPath) {
         const preview = document.getElementById("profilePicturePreview");
         const meta = document.getElementById("profilePictureMeta");
-        preview.src = imgPath || Utils.getDefaultAvatar();
+        preview.src = imgPath ? Bridge.resolveFileUrl(imgPath) : Utils.getDefaultAvatar();
         meta.textContent = this.describeSelection(imgPath, "Usando avatar actual");
     },
 
