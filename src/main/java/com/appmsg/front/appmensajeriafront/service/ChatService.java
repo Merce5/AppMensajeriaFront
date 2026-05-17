@@ -33,6 +33,10 @@ public class ChatService {
      * @return ChatCreateResponse con chatId y success
      */
     public ChatCreateResponse createChat(String chatName, String creatorId, int maxParticipants) throws Exception {
+        return createChat(chatName, creatorId, maxParticipants, null);
+    }
+
+    public ChatCreateResponse createChat(String chatName, String creatorId, int maxParticipants, String imageUrl) throws Exception {
         String urlStr = ApiConfig.BASE_API_URL + CHAT_PATH;
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -53,7 +57,7 @@ public class ChatService {
         com.google.gson.JsonArray userList = new com.google.gson.JsonArray();
         userList.add(creatorId); // El creador es el primer miembro
         body.add("userList", userList);
-        body.addProperty("chatImage", ""); // Imagen vacía por defecto
+        body.addProperty("chatImage", imageUrl != null && !imageUrl.isEmpty() ? imageUrl : "");
 
         // Enviar request
         try (java.io.OutputStream os = conn.getOutputStream()) {

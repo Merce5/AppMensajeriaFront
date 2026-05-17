@@ -25,6 +25,11 @@
     padding: var(--spacing-xs);
     border-radius: var(--radius-md);
     transition: background-color var(--transition-fast);
+    cursor: pointer;
+}
+
+.chat-info:hover {
+    background-color: var(--surface-2);
 }
 
 .chat-info-text {
@@ -366,4 +371,340 @@
 
 .empty-chat p {
     font-size: var(--font-size-lg);
+}
+
+/* ==================== AVATAR PLACEHOLDER ==================== */
+
+.avatar-placeholder {
+    background-color: var(--surface-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+/* ==================== SETTINGS PANEL ==================== */
+
+.settings-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    background-color: var(--bg);
+    border-left: 1px solid var(--border);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--shadow-lg);
+}
+
+.settings-panel.open {
+    transform: translateX(0);
+}
+
+.settings-panel-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+    min-height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.settings-panel-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+/* ==================== SETTINGS AVATAR ==================== */
+
+.settings-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-avatar-wrapper {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    cursor: pointer;
+    margin-bottom: var(--spacing-md);
+    background-color: var(--surface-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-full);
+}
+
+.settings-avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    width: 100%;
+    height: 100%;
+}
+
+.settings-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.settings-avatar-wrapper:hover .settings-avatar-overlay {
+    opacity: 1;
+}
+
+.settings-avatar-name {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.settings-avatar-desc {
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+    text-align: center;
+    max-width: 280px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background-color: var(--surface-2);
+    border-radius: var(--radius-md);
+}
+
+/* ==================== SETTINGS SECTIONS ==================== */
+
+.settings-section {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-section-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-md);
+}
+
+.settings-field {
+    margin-bottom: var(--spacing-md);
+}
+
+.settings-field:last-child {
+    margin-bottom: 0;
+}
+
+.settings-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--muted);
+    margin-bottom: var(--spacing-xs);
+}
+
+.settings-input-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.settings-input {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-2);
+    color: var(--text);
+    font-size: var(--font-size-base);
+    outline: none;
+}
+
+.settings-input:focus {
+    border-color: var(--accent);
+    background-color: var(--field-bg-hover);
+}
+
+.settings-save-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    background-color: var(--accent);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast);
+}
+
+.settings-save-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+.settings-textarea {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-2);
+    color: var(--text);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+    box-sizing: border-box;
+    margin-bottom: var(--spacing-sm);
+}
+
+.settings-textarea:focus {
+    border-color: var(--accent);
+    background-color: var(--field-bg-hover);
+}
+
+.settings-save-btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ==================== MEMBERS LIST ==================== */
+
+.settings-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-2);
+}
+
+.member-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    background-color: var(--surface-3);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.member-name {
+    font-size: var(--font-size-base);
+    color: var(--text);
+    flex: 1;
+}
+
+.settings-add-member {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-top: var(--spacing-sm);
+}
+
+/* ==================== MEDIA GALLERY ==================== */
+
+.media-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xs);
+    min-height: 60px;
+}
+
+.media-gallery-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-md);
+}
+
+.media-thumb {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    background-color: var(--surface-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--transition-fast);
+}
+
+.media-thumb:hover {
+    opacity: 0.85;
+}
+
+.media-thumb img,
+.media-thumb video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media-thumb-file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: var(--spacing-xs);
+    color: var(--muted);
+    font-size: var(--font-size-xs);
+    text-align: center;
+    word-break: break-all;
 }

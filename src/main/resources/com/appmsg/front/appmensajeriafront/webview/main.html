@@ -68,6 +68,25 @@
             <h3 class="card-title">Crear un nuevo chat</h3>
             <div style="padding: var(--spacing-md) 0;">
                 <form id="new-chat-form">
+                    <!-- Foto del grupo -->
+                    <div class="form-group" style="margin-bottom: var(--spacing-md); display:flex; align-items:center; gap: var(--spacing-md);">
+                        <div id="chat-image-preview" onclick="pickChatImage()" style="
+                            width:64px; height:64px; border-radius:50%; background:var(--surface-3);
+                            display:flex; align-items:center; justify-content:center;
+                            cursor:pointer; overflow:hidden; border:2px dashed var(--border); flex-shrink:0;">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--muted)" stroke-width="1.5">
+                                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style="font-size:var(--font-size-sm); color:var(--text); font-weight:500; margin-bottom:4px;">Foto del grupo</div>
+                            <button type="button" class="icon-btn" onclick="pickChatImage()" style="font-size:var(--font-size-sm); padding: 4px 10px;">
+                                Seleccionar imagen
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Nombre del chat -->
                     <div class="form-group" style="margin-bottom: var(--spacing-md);">
                         <label for="chat-name" style="display: block; margin-bottom: var(--spacing-xs); color: var(--text);">
@@ -179,20 +198,35 @@
         }
     }
 
-    // Variable para guardar el chatId creado
     let lastCreatedChatId = null;
+    let selectedChatImageUrl = null;
+
+    function pickChatImage() {
+        Bridge.chooseChatImage()
+            .then(url => {
+                if (!url) return;
+                selectedChatImageUrl = url;
+                const preview = document.getElementById('chat-image-preview');
+                preview.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;">';
+                preview.style.border = '2px solid var(--accent)';
+            })
+            .catch(err => console.warn('Error eligiendo imagen:', err));
+    }
+    window.pickChatImage = pickChatImage;
 
     function hideNewChat() {
         const newChatCard = document.getElementById('new-chat-card');
         newChatCard.classList.add('hidden');
-        // Limpiar formulario
         document.getElementById('chat-name').value = '';
         document.getElementById('participant-count').textContent = '1';
         document.getElementById('invitation-link').value = '';
-        // Resetear botones
         document.getElementById('create-buttons').classList.remove('hidden');
         document.getElementById('post-create-buttons').classList.add('hidden');
         lastCreatedChatId = null;
+        selectedChatImageUrl = null;
+        const preview = document.getElementById('chat-image-preview');
+        preview.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--muted)" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+        preview.style.border = '2px dashed var(--border)';
     }
 
     function goToCreatedChat() {
@@ -203,15 +237,16 @@
     }
 
     function clearNewChat() {
-        const newChatCard = document.getElementById('new-chat-card');
-        // Limpiar formulario
         document.getElementById('chat-name').value = '';
         document.getElementById('participant-count').textContent = '1';
         document.getElementById('invitation-link').value = '';
-        // Resetear botones
         document.getElementById('create-buttons').classList.remove('hidden');
         document.getElementById('post-create-buttons').classList.add('hidden');
         lastCreatedChatId = null;
+        selectedChatImageUrl = null;
+        const preview = document.getElementById('chat-image-preview');
+        preview.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--muted)" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+        preview.style.border = '2px dashed var(--border)';
     }
 
 
@@ -251,7 +286,7 @@
 
         Bridge.log(`Creando chat: ${chatName} con ${participantCount} participantes`);
 
-        Bridge.createNewChat(chatName, participantCount)
+        Bridge.createNewChat(chatName, participantCount, selectedChatImageUrl || '')
             .then(response => {
                 Bridge.log('Chat creado: ' + JSON.stringify(response));
 

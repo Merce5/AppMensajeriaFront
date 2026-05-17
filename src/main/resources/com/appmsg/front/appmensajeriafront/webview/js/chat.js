@@ -9,13 +9,13 @@ const Chat = {
     userId: null,
     chatId: null,
     initialized: false,
+    chatInfo: null,
 
     // ==================== INICIALIZACION ====================
 
     init: function() {
         Bridge.log("Initializing Chat view");
 
-        // Cargar ajustes y aplicar tema
         if (window.javaBridge && typeof javaBridge.loadSettings === "function") {
             javaBridge.loadSettings();
         }
@@ -32,17 +32,12 @@ const Chat = {
         Bridge.log('User ID: ' + this.userId);
         Bridge.log('Chat ID: ' + this.chatId);
 
-        // Conectar al WebSocket
         Bridge.connectToChat(this.chatId);
-
-        Bridge.log('Connected to chat: ' + this.chatId);
-
-        // Setup
+        this.loadChatInfo();
         this.setupEventListeners();
         this.loadMessages();
 
         Bridge.log('Chat initialized: ' + this.chatId);
-
         this.initialized = true;
     },
 
@@ -77,7 +72,262 @@ const Chat = {
 
     loadMessages: function() {
         // Los mensajes llegan por WebSocket
-        // Aqui podriamos cargar historial si hubiera endpoint
+    },
+
+    // ==================== CHAT INFO / TOOLBAR ====================
+
+    loadChatInfo: function() {
+        Bridge.getChatInfo(this.chatId)
+            .then(info => this.applyChatInfo(info))
+            .catch(err => Bridge.log('Error cargando info del chat: ' + err));
+    },
+
+    applyChatInfo: function(info) {
+        this.chatInfo = info;
+
+        const nameEl = document.getElementById('chat-name');
+        const statusEl = document.getElementById('chat-status');
+        const avatarEl = document.getElementById('chat-avatar');
+        const avatarPlaceholder = document.getElementById('chat-avatar-placeholder');
+
+        if (nameEl && info.chatName) nameEl.textContent = info.chatName;
+
+        // Subtitle: member count for groups
+        if (statusEl && info.members) {
+            const count = info.members.length;
+            if (this._isGroupChat(info)) {
+                statusEl.textContent = count + ' participante' + (count !== 1 ? 's' : '');
+            }
+        }
+
+        // Avatar — resolve relative URL to full http:// URL
+        const resolvedImage = info.chatImage ? Bridge.resolveFileUrl(info.chatImage) : '';
+        if (avatarEl) {
+            if (resolvedImage) {
+                avatarEl.src = resolvedImage;
+                avatarEl.style.display = '';
+                if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
+                avatarEl.onerror = function() {
+                    this.style.display = 'none';
+                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'flex';
+                };
+            } else {
+                avatarEl.style.display = 'none';
+                if (avatarPlaceholder) avatarPlaceholder.style.display = 'flex';
+            }
+        }
+
+        this.populateSettingsPanel(info);
+    },
+
+    // Determina si es un chat de grupo (isGroup del backend O más de 1 miembro)
+    _isGroupChat: function(info) {
+        if (info.isGroup) return true;
+        if (info.members && info.members.length > 1) return true;
+        return false;
+    },
+
+    populateSettingsPanel: function(info) {
+        const sImg = document.getElementById('settings-avatar-img');
+        const sPlaceholder = document.getElementById('settings-avatar-placeholder');
+        const sName = document.getElementById('settings-display-name');
+        const sDesc = document.getElementById('settings-display-desc');
+        const sNameInput = document.getElementById('settings-name-input');
+        const sDescTextarea = document.getElementById('settings-desc-textarea');
+        const editSection = document.getElementById('settings-edit-section');
+        const addMemberSection = document.getElementById('settings-add-member');
+
+        const isGroup = this._isGroupChat(info);
+
+        // Nombre en la cabecera del panel
+        if (sName) sName.textContent = info.chatName || 'Chat';
+
+        // Descripción visible bajo el nombre (solo si tiene contenido)
+        if (sDesc) {
+            sDesc.textContent = info.chatStatus || '';
+            sDesc.style.display = info.chatStatus ? '' : 'none';
+        }
+
+        // Rellenar inputs/textarea — siempre, sin importar si es grupo
+        if (sNameInput) sNameInput.value = info.chatName || '';
+        if (sDescTextarea) sDescTextarea.value = info.chatStatus || '';
+
+        // Avatar — resolver URL relativa a http://
+        const resolvedImage = info.chatImage ? Bridge.resolveFileUrl(info.chatImage) : '';
+        if (sImg) {
+            if (resolvedImage) {
+                sImg.src = resolvedImage;
+                sImg.style.display = '';
+                if (sPlaceholder) sPlaceholder.style.display = 'none';
+                sImg.onerror = function() {
+                    this.style.display = 'none';
+                    if (sPlaceholder) sPlaceholder.style.display = 'flex';
+                };
+            } else {
+                sImg.style.display = 'none';
+                if (sPlaceholder) sPlaceholder.style.display = 'flex';
+            }
+        }
+
+        // Sección "Configuración del grupo" (cambiar nombre) — solo para grupos
+        if (editSection) editSection.style.display = isGroup ? '' : 'none';
+        // Botón añadir miembro — solo para grupos
+        if (addMemberSection) addMemberSection.style.display = isGroup ? '' : 'none';
+
+        this.renderMembersList(info.members || []);
+    },
+
+    renderMembersList: function(members) {
+        const countEl = document.getElementById('settings-members-count');
+        const listEl = document.getElementById('settings-members-list');
+        if (countEl) countEl.textContent = members.length;
+        if (!listEl) return;
+
+        listEl.innerHTML = members.map(m => {
+            const initials = (m.username || '?').charAt(0).toUpperCase();
+            const avatarHtml = m.picture
+                ? `<div class="member-avatar"><img src="${Utils.escapeHtml(m.picture)}" alt="" onerror="this.parentElement.textContent='${initials}'"></div>`
+                : `<div class="member-avatar">${initials}</div>`;
+            return `<div class="member-item">${avatarHtml}<span class="member-name">${Utils.escapeHtml(m.username || 'Usuario')}</span></div>`;
+        }).join('');
+    },
+
+    // ==================== SETTINGS PANEL ====================
+
+    openSettings: function() {
+        const panel = document.getElementById('settings-panel');
+        if (!panel) return;
+        panel.classList.remove('hidden');
+        requestAnimationFrame(() => panel.classList.add('open'));
+
+        // Load media gallery each time the panel opens
+        this.loadMediaGallery();
+    },
+
+    closeSettings: function() {
+        const panel = document.getElementById('settings-panel');
+        if (!panel) return;
+        panel.classList.remove('open');
+        setTimeout(() => panel.classList.add('hidden'), 260);
+    },
+
+    changeGroupImage: function() {
+        Bridge.chooseChatImage()
+            .then(url => {
+                if (!url) return;
+                // Guardar la URL relativa en BD, pero mostrar la URL resuelta en la UI
+                const displayUrl = Bridge.resolveFileUrl(url);
+                return Bridge.updateChatInfo(this.chatId, { chatImage: url }).then(() => {
+                    const sImg = document.getElementById('settings-avatar-img');
+                    const sPlaceholder = document.getElementById('settings-avatar-placeholder');
+                    if (sImg) { sImg.src = displayUrl; sImg.style.display = ''; }
+                    if (sPlaceholder) sPlaceholder.style.display = 'none';
+                    const avatarEl = document.getElementById('chat-avatar');
+                    const avatarPl = document.getElementById('chat-avatar-placeholder');
+                    if (avatarEl) { avatarEl.src = displayUrl; avatarEl.style.display = ''; }
+                    if (avatarPl) avatarPl.style.display = 'none';
+                    if (this.chatInfo) this.chatInfo.chatImage = url;
+                });
+            })
+            .catch(err => Bridge.log('Error cambiando imagen: ' + err));
+    },
+
+    saveGroupName: function() {
+        const input = document.getElementById('settings-name-input');
+        const newName = input ? input.value.trim() : '';
+        if (!newName) return;
+
+        Bridge.updateChatInfo(this.chatId, { chatName: newName })
+            .then(() => {
+                if (this.chatInfo) this.chatInfo.chatName = newName;
+                const nameEl = document.getElementById('chat-name');
+                if (nameEl) nameEl.textContent = newName;
+                const sName = document.getElementById('settings-display-name');
+                if (sName) sName.textContent = newName;
+            })
+            .catch(err => Bridge.log('Error actualizando nombre: ' + err));
+    },
+
+    saveGroupStatus: function() {
+        const textarea = document.getElementById('settings-desc-textarea');
+        const newStatus = textarea ? textarea.value.trim() : '';
+
+        Bridge.updateChatInfo(this.chatId, { chatStatus: newStatus })
+            .then(() => {
+                if (this.chatInfo) this.chatInfo.chatStatus = newStatus;
+                const sDesc = document.getElementById('settings-display-desc');
+                if (sDesc) {
+                    sDesc.textContent = newStatus;
+                    sDesc.style.display = newStatus ? '' : 'none';
+                }
+            })
+            .catch(err => Bridge.log('Error actualizando descripción: ' + err));
+    },
+
+    addMember: function() {
+        const input = document.getElementById('add-member-input');
+        const username = input ? input.value.trim() : '';
+        if (!username) return;
+
+        Bridge.addMemberToChat(this.chatId, username)
+            .then(result => {
+                if (input) input.value = '';
+                // Refresh chat info to update members list
+                this.loadChatInfo();
+            })
+            .catch(err => {
+                Bridge.log('Error añadiendo miembro: ' + err);
+                alert('No se pudo añadir al usuario: ' + err.message);
+            });
+    },
+
+    // ==================== MULTIMEDIA GALLERY ====================
+
+    loadMediaGallery: function() {
+        const gallery = document.getElementById('settings-media-gallery');
+        if (!gallery) return;
+
+        gallery.innerHTML = '<div class="media-gallery-empty">Cargando...</div>';
+
+        Bridge.getChatMedia(this.chatId)
+            .then(messages => {
+                const allMedia = [];
+                messages.forEach(msg => {
+                    if (msg._multimedia && msg._multimedia.length > 0) {
+                        msg._multimedia.forEach(url => allMedia.push(url));
+                    } else if (msg.multimedia && msg.multimedia.length > 0) {
+                        msg.multimedia.forEach(url => allMedia.push(url));
+                    }
+                });
+
+                if (allMedia.length === 0) {
+                    gallery.innerHTML = '<div class="media-gallery-empty">No hay multimedia compartida</div>';
+                    return;
+                }
+
+                gallery.innerHTML = allMedia.map(rawUrl => {
+                    const url = Bridge.resolveFileUrl(rawUrl);
+                    if (Utils.isImage(url)) {
+                        return `<div class="media-thumb" onclick="Chat.openMedia('${url}')">
+                            <img src="${url}" alt="Media" loading="lazy" onerror="this.parentElement.style.display='none'">
+                        </div>`;
+                    } else if (Utils.isVideo(url)) {
+                        return `<div class="media-thumb" onclick="Chat.openMedia('${url}')">
+                            <video src="${url}" preload="metadata"></video>
+                        </div>`;
+                    } else {
+                        const name = Utils.getFileName(rawUrl);
+                        const icon = Utils.getFileIcon(rawUrl);
+                        return `<div class="media-thumb media-thumb-file" onclick="Chat.openMedia('${url}')">
+                            <span>${icon}</span>
+                            <span>${Utils.escapeHtml(name)}</span>
+                        </div>`;
+                    }
+                }).join('');
+            })
+            .catch(() => {
+                gallery.innerHTML = '<div class="media-gallery-empty">No hay multimedia compartida</div>';
+            });
     },
 
     // ==================== ENVIO DE MENSAJES ====================
@@ -389,7 +639,14 @@ const Chat = {
 
     onConnectionStatusChanged: function(connected) {
         const status = document.getElementById('chat-status');
-        if (connected) {
+        if (!status) return;
+
+        // Para grupos mostramos el conteo de miembros en lugar del estado de conexión
+        if (this.chatInfo && this.chatInfo.isGroup && this.chatInfo.members) {
+            const count = this.chatInfo.members.length;
+            status.textContent = count + ' participante' + (count !== 1 ? 's' : '');
+            status.className = 'chat-status';
+        } else if (connected) {
             status.textContent = 'Conectado';
             status.className = 'chat-status online';
         } else {

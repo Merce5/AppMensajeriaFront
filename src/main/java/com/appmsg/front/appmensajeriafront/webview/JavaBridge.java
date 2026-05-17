@@ -31,6 +31,7 @@ public class JavaBridge {
     private final ProfileService profileService;
     private final ChatController chatController;
     private final ChatService chatService;
+    private final com.appmsg.front.appmensajeriafront.service.ChatInfoService chatInfoService;
 
     private ChatWebSocketClient wsClient;
     private final PageLoader pageLoader;
@@ -51,6 +52,7 @@ public class JavaBridge {
         this.loginService = new LoginService();
         this.chatService = new ChatService();
         this.settingsService = new SettingsService();
+        this.chatInfoService = new com.appmsg.front.appmensajeriafront.service.ChatInfoService();
     }
 
     // ===== Settings (expuestos a JS) =====
@@ -214,13 +216,93 @@ public class JavaBridge {
 
     // ===== Chat (WS) =====
 
+    // ===== Chat Info / Update =====
+
+    public void getChatInfo(String chatId, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String json = chatInfoService.getChatInfo(chatId);
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, json));
+            } catch (Exception e) {
+                e.printStackTrace();
+                String err = "{\"error\":\"" + escape(e.getMessage()) + "\"}";
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, err));
+            }
+        });
+    }
+
+    public void updateChatInfo(String json, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String result = chatInfoService.updateChatInfo(json);
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, result));
+            } catch (Exception e) {
+                e.printStackTrace();
+                String err = "{\"success\":false,\"error\":\"" + escape(e.getMessage()) + "\"}";
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, err));
+            }
+        });
+    }
+
+    public void addMemberToChat(String chatId, String username, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String result = chatInfoService.addMember(chatId, username);
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, result));
+            } catch (Exception e) {
+                e.printStackTrace();
+                String err = "{\"success\":false,\"error\":\"" + escape(e.getMessage()) + "\"}";
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, err));
+            }
+        });
+    }
+
+    public void getChatMedia(String chatId, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String json = chatInfoService.getChatMedia(chatId);
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, json));
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, "[]"));
+            }
+        });
+    }
+
+    public void chooseChatImage(String callbackFunction) {
+        Window w = webViewManager.getWebView().getScene() != null
+                ? webViewManager.getWebView().getScene().getWindow()
+                : null;
+        if (w == null) return;
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Elegir foto del chat");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
+        );
+        File f = fc.showOpenDialog(w);
+        if (f != null) {
+            final String path = f.getAbsolutePath();
+            CompletableFuture.runAsync(() -> {
+                try {
+                    UploadResponse response = uploadService.uploadFiles(java.util.Arrays.asList(f));
+                    String responseJson = gson.toJson(response);
+                    Platform.runLater(() -> callJsFunctionObj(callbackFunction, responseJson));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    String err = "{\"success\":false,\"error\":\"" + escape(e.getMessage()) + "\"}";
+                    Platform.runLater(() -> callJsFunctionObj(callbackFunction, err));
+                }
+            });
+        }
+    }
+
     /**
      * Crea un nuevo chat de grupo y genera un enlace de invitación.
      * @param chatName Nombre del chat
      * @param maxParticipants Número máximo de participantes
      * @param callbackFunction Función JS a invocar con el resultado
      */
-    public void createNewChat(String chatName, int maxParticipants, String callbackFunction) {
+    public void createNewChat(String chatName, int maxParticipants, String imageUrl, String callbackFunction) {
         CompletableFuture.runAsync(() -> {
             try {
                 String userId = Session.getUserId();
@@ -229,7 +311,7 @@ public class JavaBridge {
                 }
 
                 // 1. Crear el chat
-                ChatCreateResponse chatResponse = chatService.createChat(chatName, userId, maxParticipants);
+                ChatCreateResponse chatResponse = chatService.createChat(chatName, userId, maxParticipants, imageUrl);
                 if (chatResponse == null || chatResponse.chatId == null) {
                     System.out.println(chatResponse);
                     throw new Exception("Error al crear el chat");

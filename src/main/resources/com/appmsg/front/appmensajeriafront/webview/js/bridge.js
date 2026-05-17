@@ -302,9 +302,10 @@ const Bridge = {
      * Crea un nuevo chat de grupo y genera un enlace de invitación.
      * @param chatName Nombre del chat
      * @param maxParticipants Número máximo de participantes
+     * @param imageUrl URL de la imagen del chat (opcional)
      * @returns Promise con {success, chatId, chatName, inviteCode}
      */
-    createNewChat(chatName, maxParticipants) {
+    createNewChat(chatName, maxParticipants, imageUrl) {
         return new Promise((resolve, reject) => {
             if (!this.isReady()) {
                 reject(new Error("Bridge not ready"));
@@ -330,11 +331,94 @@ const Bridge = {
             };
 
             try {
-                fn.call(javaBridge, chatName, maxParticipants, callbackName);
+                fn.call(javaBridge, chatName, maxParticipants, imageUrl || "", callbackName);
             } catch (e) {
                 delete window[callbackName];
                 reject(e);
             }
+        });
+    },
+
+    getChatInfo(chatId) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) { reject(new Error("Bridge not ready")); return; }
+            const fn = javaBridge.getChatInfo;
+            if (typeof fn !== "function") { reject(new Error("getChatInfo not available")); return; }
+            const cb = "_chatInfoCb_" + Date.now();
+            window[cb] = function(data) {
+                delete window[cb];
+                if (data && data.error) reject(new Error(data.error));
+                else resolve(data);
+            };
+            try { fn.call(javaBridge, chatId, cb); } catch(e) { delete window[cb]; reject(e); }
+        });
+    },
+
+    updateChatInfo(chatId, updates) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) { reject(new Error("Bridge not ready")); return; }
+            const fn = javaBridge.updateChatInfo;
+            if (typeof fn !== "function") { reject(new Error("updateChatInfo not available")); return; }
+            const cb = "_updateChatCb_" + Date.now();
+            window[cb] = function(data) {
+                delete window[cb];
+                if (data && data.success) resolve(data);
+                else reject(new Error((data && data.error) || "Update failed"));
+            };
+            try {
+                const body = JSON.stringify(Object.assign({ chatId }, updates));
+                fn.call(javaBridge, body, cb);
+            } catch(e) { delete window[cb]; reject(e); }
+        });
+    },
+
+    addMemberToChat(chatId, username) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) { reject(new Error("Bridge not ready")); return; }
+            const fn = javaBridge.addMemberToChat;
+            if (typeof fn !== "function") { reject(new Error("addMemberToChat not available")); return; }
+            const cb = "_addMemberCb_" + Date.now();
+            window[cb] = function(data) {
+                delete window[cb];
+                if (data && data.success) resolve(data);
+                else reject(new Error((data && data.error) || "Add member failed"));
+            };
+            try { fn.call(javaBridge, chatId, username, cb); } catch(e) { delete window[cb]; reject(e); }
+        });
+    },
+
+    getChatMedia(chatId) {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) { reject(new Error("Bridge not ready")); return; }
+            const fn = javaBridge.getChatMedia;
+            if (typeof fn !== "function") { resolve([]); return; }
+            const cb = "_chatMediaCb_" + Date.now();
+            window[cb] = function(data) {
+                delete window[cb];
+                resolve(Array.isArray(data) ? data : []);
+            };
+            try { fn.call(javaBridge, chatId, cb); } catch(e) { delete window[cb]; resolve([]); }
+        });
+    },
+
+    chooseChatImage() {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady()) { reject(new Error("Bridge not ready")); return; }
+            const fn = javaBridge.chooseChatImage;
+            if (typeof fn !== "function") { reject(new Error("chooseChatImage not available")); return; }
+            const cb = "_chooseChatImgCb_" + Date.now();
+            window[cb] = function(data) {
+                delete window[cb];
+                if (data && data.success && data.files) {
+                    try {
+                        const urls = JSON.parse(data.files);
+                        resolve(Array.isArray(urls) && urls.length > 0 ? urls[0] : null);
+                    } catch(e) { resolve(null); }
+                } else {
+                    reject(new Error((data && data.error) || "Upload failed"));
+                }
+            };
+            try { fn.call(javaBridge, cb); } catch(e) { delete window[cb]; reject(e); }
         });
     },
     setLoading: function(isLoading, button) {
