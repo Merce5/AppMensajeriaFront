@@ -1,6 +1,6 @@
 package com.appmsg.front.appmensajeriafront.service;
 
-import com.appmsg.front.appmensajeriafront.model.UserSettingsDto;
+import com.appmsg.front.appmensajeriafront.model.user.UserSettingsDto;
 import com.google.gson.Gson;
 
 import java.io.*;

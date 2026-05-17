@@ -1,7 +1,7 @@
 /**
  * Chat - Logica de la vista de chat
  */
-const Chat = {
+let Chat = {
     messages: [],
     attachments: [],
     typingTimeout: null,
@@ -10,6 +10,7 @@ const Chat = {
     chatId: null,
     initialized: false,
     chatInfo: null,
+    loadingMessages: false,
 
     // ==================== INICIALIZACION ====================
 
@@ -71,11 +72,43 @@ const Chat = {
     },
 
     loadMessages: function() {
-        // Los mensajes llegan por WebSocket
+        this.fetchMessages();
     },
 
     // ==================== CHAT INFO / TOOLBAR ====================
+    fetchMessages: async function() {
+        if (this.loadingMessages) return;
 
+        this.loadingMessages = true;
+
+        try {
+            const messages = await Bridge.loadMessages(this.chatId);
+
+            if (messages && messages.length > 0) {
+                const emptyState = document.getElementById('empty-state');
+                if (emptyState) {
+                    emptyState.classList.add('hidden');
+                }
+
+                // Limpiar mensajes actuales
+                this.messages = [];
+
+                // Renderizar todos en orden
+                messages.forEach(msg => {
+                    this.renderMessage(msg);
+                    this.messages.push(msg);
+                });
+
+                // Scroll al final
+                setTimeout(() => this.scrollToBottom(), 100);
+            }
+
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        } finally {
+            this.loadingMessages = false;
+        }
+    },
     loadChatInfo: function() {
         Bridge.getChatInfo(this.chatId)
             .then(info => this.applyChatInfo(info))
@@ -486,6 +519,7 @@ const Chat = {
 
     renderMessage: function(msg) {
         const container = document.getElementById('messages');
+        Bridge.log('senderId ' + msg.senderId + ' userId ' + this.userId + ' isOwn ' + (msg.senderId === this.userId))
         const isOwn = msg.senderId === this.userId;
 
         const div = document.createElement('div');

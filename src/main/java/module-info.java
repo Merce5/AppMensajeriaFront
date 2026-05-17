@@ -28,4 +28,6 @@ module com.appmsg.front.appmensajeriafront {
     exports com.appmsg.front.appmensajeriafront.webview;
     opens com.appmsg.front.appmensajeriafront.webview to javafx.fxml, javafx.web;
     opens com.appmsg.front.appmensajeriafront.model.auth to com.google.gson;
+    opens com.appmsg.front.appmensajeriafront.model.chat to com.google.gson;
+    opens com.appmsg.front.appmensajeriafront.model.user to com.google.gson;
 }
