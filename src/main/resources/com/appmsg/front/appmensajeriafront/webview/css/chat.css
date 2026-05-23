@@ -248,6 +248,96 @@
     gap: var(--spacing-sm);
 }
 
+.emoji-menu-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+#emoji-toggle.active {
+    background-color: var(--surface-2);
+    color: var(--accent);
+}
+
+.emoji-picker {
+    position: absolute;
+    left: 0;
+    bottom: 48px;
+    width: 292px;
+    max-width: calc(100vw - 32px);
+    max-height: 312px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 40;
+    overflow: hidden;
+}
+
+.emoji-tabs {
+    display: flex;
+    gap: 2px;
+    padding: var(--spacing-xs);
+    background-color: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.emoji-tab {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.emoji-tab:hover,
+.emoji-tab.active {
+    background-color: var(--surface);
+}
+
+.emoji-tab.active {
+    box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    padding: var(--spacing-sm);
+    overflow-y: auto;
+}
+
+.emoji-option {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.emoji-option:hover {
+    background-color: var(--surface-2);
+    transform: translateY(-1px);
+}
+
 .input-row input {
     flex: 1;
     padding: var(--spacing-sm) var(--spacing-md);
@@ -289,6 +379,31 @@
 .btn-send svg {
     width: 20px;
     height: 20px;
+}
+
+@media (max-width: 480px) {
+    .input-bar {
+        padding: var(--spacing-sm);
+    }
+
+    .input-row {
+        gap: 6px;
+    }
+
+    .emoji-picker {
+        left: -48px;
+        width: calc(100vw - 16px);
+    }
+
+    .emoji-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+
+    .emoji-tab,
+    .emoji-option {
+        width: 32px;
+        height: 32px;
+    }
 }
 
 /* ==================== STATUS ICONS ==================== */

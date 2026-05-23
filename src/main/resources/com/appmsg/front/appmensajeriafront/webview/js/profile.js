@@ -27,12 +27,13 @@ const Profile = {
 
         const isOnline = profile.status === 'Online' || profile.status === 'En linea';
         const defaultAvatar = Utils.getDefaultAvatar();
+        const profilePicture = profile.picture ? Bridge.resolveFileUrl(profile.picture) : '';
 
         content.innerHTML = `
             <div class="profile-avatar-section">
                 <img id="profile-picture"
                      class="profile-avatar"
-                     src="${profile.picture || defaultAvatar}"
+                     src="${profilePicture || defaultAvatar}"
                      alt="${Utils.escapeHtml(profile.username || 'Usuario')}"
                      onerror="this.src='${defaultAvatar}'">
                 <div class="profile-status-indicator ${isOnline ? 'online' : ''}"></div>

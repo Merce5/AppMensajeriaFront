@@ -1,7 +1,9 @@
 const Login = {
     tryToLogin: function () {
-        Bridge.log("Intentando login...");
         const button = document.querySelector(".btn-primary");
+        if (button && button.disabled) return;
+
+        Bridge.log("Intentando login...");
         Bridge.setLoading(true, button);
         Bridge.tryToLogin(
             document.getElementById("username").value,
@@ -62,6 +64,16 @@ const Login = {
         }
     }
 };
+
+document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById("login-form");
+    if (!loginForm) return;
+
+    loginForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        Login.tryToLogin();
+    });
+});
 
 window.onErrorLoginResult = function (result) {
     const data = (typeof result === "string") ? JSON.parse(result) : result;

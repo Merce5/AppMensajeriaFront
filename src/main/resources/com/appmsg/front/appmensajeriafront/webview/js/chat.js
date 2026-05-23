@@ -11,6 +11,15 @@ let Chat = {
     initialized: false,
     chatInfo: null,
     loadingMessages: false,
+    activeEmojiCategory: 'recent',
+    emojiRecentKey: 'appmsg_recent_emojis',
+    emojiCategories: [
+        { id: 'recent', label: 'Recientes', icon: '🕘', emojis: [] },
+        { id: 'smileys', label: 'Caras', icon: '😀', emojis: ['😀','😃','😄','😁','😆','😂','🤣','😊','😍','😘','😎','🥳','😅','🙂','🙃','😉','😋','😜','🤔','😐','😶','😴','😢','😭','😡','😱','🤯','🥺'] },
+        { id: 'gestures', label: 'Gestos', icon: '👍', emojis: ['👍','👎','👌','👏','🙌','🙏','🤝','💪','👋','🤙','✌️','🤞','🫶','☝️','👇','👈','👉','✍️','🤌','🫡'] },
+        { id: 'hearts', label: 'Amor', icon: '❤️', emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','💕','💞','💓','💗','💖','💘','💝','💟'] },
+        { id: 'things', label: 'Varios', icon: '✨', emojis: ['✨','🔥','⭐','🌟','💫','🎉','🎊','✅','❌','⚠️','💯','📌','📎','📷','🎧','☕','🍕','🍔','⚽','🎮','🚀','💡'] }
+    ],
 
     // ==================== INICIALIZACION ====================
 
@@ -49,9 +58,10 @@ let Chat = {
         }
         // Aplicar fondo de chat si hay wallpaper
         if (dto && dto.wallpaperPath) {
+            const wallpaperUrl = Bridge.resolveFileUrl(dto.wallpaperPath);
             const messages = document.getElementById('messages');
             if (messages) {
-                messages.style.backgroundImage = `url('${dto.wallpaperPath}')`;
+                messages.style.backgroundImage = `url('${wallpaperUrl}')`;
                 messages.style.backgroundSize = 'cover';
                 messages.style.backgroundPosition = 'center';
                 messages.style.backgroundRepeat = 'no-repeat';
@@ -69,6 +79,18 @@ let Chat = {
         if (input) {
             input.addEventListener('focus', () => this.scrollToBottom());
         }
+
+        this.renderEmojiPicker();
+
+        document.addEventListener('mousedown', (event) => this.closeEmojiPickerFromOutside(event), true);
+        document.addEventListener('touchstart', (event) => this.closeEmojiPickerFromOutside(event), true);
+        document.addEventListener('click', (event) => this.closeEmojiPickerFromOutside(event));
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                this.closeEmojiPicker();
+            }
+        });
     },
 
     loadMessages: function() {
@@ -218,8 +240,9 @@ let Chat = {
 
         listEl.innerHTML = members.map(m => {
             const initials = (m.username || '?').charAt(0).toUpperCase();
+            const avatarUrl = m.picture ? Bridge.resolveFileUrl(m.picture) : '';
             const avatarHtml = m.picture
-                ? `<div class="member-avatar"><img src="${Utils.escapeHtml(m.picture)}" alt="" onerror="this.parentElement.textContent='${initials}'"></div>`
+                ? `<div class="member-avatar"><img src="${Utils.escapeHtml(avatarUrl)}" alt="" onerror="this.parentElement.textContent='${initials}'"></div>`
                 : `<div class="member-avatar">${initials}</div>`;
             return `<div class="member-item">${avatarHtml}<span class="member-name">${Utils.escapeHtml(m.username || 'Usuario')}</span></div>`;
         }).join('');
@@ -365,6 +388,142 @@ let Chat = {
 
     // ==================== ENVIO DE MENSAJES ====================
 
+    closeEmojiPickerFromOutside: function(event) {
+        const picker = document.getElementById('emoji-picker');
+        const wrapper = document.querySelector('.emoji-menu-wrapper');
+        if (!picker || !wrapper || picker.classList.contains('hidden')) return;
+
+        const target = event.target;
+        if (target && wrapper.contains(target)) return;
+
+        this.closeEmojiPicker();
+    },
+
+    toggleEmojiPicker: function(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        const picker = document.getElementById('emoji-picker');
+        if (!picker) return;
+
+        if (picker.classList.contains('hidden')) {
+            this.openEmojiPicker();
+        } else {
+            this.closeEmojiPicker();
+        }
+    },
+
+    openEmojiPicker: function() {
+        const picker = document.getElementById('emoji-picker');
+        const toggle = document.getElementById('emoji-toggle');
+        if (!picker) return;
+
+        this.renderEmojiPicker();
+        picker.classList.remove('hidden');
+        if (toggle) toggle.classList.add('active');
+    },
+
+    closeEmojiPicker: function() {
+        const picker = document.getElementById('emoji-picker');
+        const toggle = document.getElementById('emoji-toggle');
+        if (picker) picker.classList.add('hidden');
+        if (toggle) toggle.classList.remove('active');
+    },
+
+    renderEmojiPicker: function() {
+        const tabs = document.getElementById('emoji-tabs');
+        const grid = document.getElementById('emoji-grid');
+        if (!tabs || !grid) return;
+
+        const categories = this.emojiCategories.map(category => {
+            if (category.id === 'recent') {
+                return Object.assign({}, category, { emojis: this.getRecentEmojis() });
+            }
+            return category;
+        });
+
+        const activeCategory = categories.find(category => category.id === this.activeEmojiCategory);
+        if (!activeCategory || (activeCategory.id === 'recent' && activeCategory.emojis.length === 0)) {
+            this.activeEmojiCategory = 'smileys';
+        }
+
+        tabs.innerHTML = '';
+        categories.forEach(category => {
+            if (category.id === 'recent' && category.emojis.length === 0) return;
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'emoji-tab' + (category.id === this.activeEmojiCategory ? ' active' : '');
+            button.title = category.label;
+            button.textContent = category.icon;
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                this.activeEmojiCategory = category.id;
+                this.renderEmojiPicker();
+            });
+            tabs.appendChild(button);
+        });
+
+        const selected = categories.find(category => category.id === this.activeEmojiCategory) || categories[1];
+        grid.innerHTML = '';
+        selected.emojis.forEach(emoji => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'emoji-option';
+            button.textContent = emoji;
+            button.title = emoji;
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.insertEmoji(emoji);
+            });
+            grid.appendChild(button);
+        });
+    },
+
+    insertEmoji: function(emoji) {
+        const input = document.getElementById('message-input');
+        if (!input) return;
+
+        const start = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+        const end = typeof input.selectionEnd === 'number' ? input.selectionEnd : start;
+
+        input.focus();
+        if (typeof input.setRangeText === 'function') {
+            input.setRangeText(emoji, start, end, 'end');
+        } else {
+            input.value = input.value.substring(0, start) + emoji + input.value.substring(end);
+            const cursor = start + emoji.length;
+            input.setSelectionRange(cursor, cursor);
+        }
+
+        this.saveRecentEmoji(emoji);
+        this.handleTyping({ key: emoji });
+    },
+
+    getRecentEmojis: function() {
+        try {
+            const stored = localStorage.getItem(this.emojiRecentKey);
+            const parsed = stored ? JSON.parse(stored) : [];
+            return Array.isArray(parsed) ? parsed.slice(0, 18) : [];
+        } catch (e) {
+            return [];
+        }
+    },
+
+    saveRecentEmoji: function(emoji) {
+        const recent = this.getRecentEmojis().filter(item => item !== emoji);
+        recent.unshift(emoji);
+        try {
+            localStorage.setItem(this.emojiRecentKey, JSON.stringify(recent.slice(0, 18)));
+        } catch (e) {
+            Bridge.log('No se pudieron guardar emojis recientes: ' + e);
+        }
+        this.renderEmojiPicker();
+    },
+
     sendMessage: function() {
         const input = document.getElementById('message-input');
         const text = input.value.trim();
@@ -378,6 +537,8 @@ let Chat = {
             Bridge.sendMessage(text, []);
             input.value = '';
         }
+
+        this.closeEmojiPicker();
 
         // Limpiar estado de typing
         this.stopTyping();

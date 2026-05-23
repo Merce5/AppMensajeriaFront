@@ -46,6 +46,7 @@ public class JavaBridge {
     private final PageLoader pageLoader;
     private final LoginService loginService;
     private final SettingsService settingsService;
+    private boolean firstLoginSettingsFlow;
     private final ContactService contactService;
 
     // constructor
@@ -97,9 +98,13 @@ public class JavaBridge {
                     try { return settingsService.saveSettings(dto); }
                     catch (Exception e) { throw new RuntimeException(e); }
                 })
-                .thenAccept(saved -> Platform.runLater(() ->
-                        callJsFunctionObj("onSettingsSaved", gson.toJson(saved))
-                ))
+                .thenAccept(saved -> Platform.runLater(() -> {
+                    callJsFunctionObj("onSettingsSaved", gson.toJson(saved));
+                    if (firstLoginSettingsFlow) {
+                        firstLoginSettingsFlow = false;
+                        pageLoader.load("main.html");
+                    }
+                }))
                 .exceptionally(ex -> {
                     Platform.runLater(() -> callJsFunction("onSettingsError", ex.getMessage()));
                     return null;
@@ -114,12 +119,19 @@ public class JavaBridge {
         FileChooser fc = new FileChooser();
         fc.setTitle("Elegir fondo");
         fc.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Imágenes", "*.png","*.jpg","*.jpeg")
+                new FileChooser.ExtensionFilter("Imagenes", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
         );
         File f = fc.showOpenDialog(w);
         if (f != null) {
-            Platform.runLater(() -> callJsFunctionObj("onWallpaperChosen",
-                    gson.toJson(Map.of("uri", f.toURI().toString()))));
+            try {
+                String wallpaperUri = WallpaperProvider.importWallpaper(f);
+                Platform.runLater(() -> callJsFunctionObj("onWallpaperChosen",
+                        gson.toJson(Map.of("uri", wallpaperUri))));
+                return;
+            } catch (IOException e) {
+                Platform.runLater(() -> callJsFunction("onSettingsError", e.getMessage()));
+                return;
+            }
         }
     }
 
@@ -142,9 +154,9 @@ public class JavaBridge {
 
     // Utilidad para pasar objetos JSON a JS (parseados)
     private void callJsFunctionObj(String fn, String json) {
-        String s = escape(json);
+        String payload = (json == null || json.isBlank()) ? "{}" : json;
         webEngine.executeScript(
-                "if(typeof " + fn + "==='function'){ " + fn + "(JSON.parse('" + s + "')); }"
+            "if(typeof " + fn + "==='function'){ " + fn + "(JSON.parse(" + gson.toJson(payload) + ")); }"
         );
     }
     // ===== Session / Init =====
@@ -195,8 +207,10 @@ public class JavaBridge {
             Session.setUserId(loginResult.getUserId());
             try {
                 UserSettingsDto settings = settingsService.getSettings(loginResult.getUserId());
-                navigate(settings != null && settings.firstLogin ? "settings.html" : "main.html");
+                firstLoginSettingsFlow = settings != null && settings.firstLogin;
+                navigate(firstLoginSettingsFlow ? "settings.html" : "main.html");
             } catch (Exception e) {
+                firstLoginSettingsFlow = false;
                 navigate("settings.html");
             }
         }
@@ -221,6 +235,7 @@ public class JavaBridge {
         } else {
             Platform.runLater(() -> callJsFunction("orSuccessResult", gson.toJson(response)));
             Session.setUserId(response.getMessage());
+            firstLoginSettingsFlow = true;
             navigate("settings.html");
         }
     }
@@ -233,7 +248,11 @@ public class JavaBridge {
         CompletableFuture.runAsync(() -> {
             try {
                 String json = chatInfoService.getChatInfo(chatId);
-                Platform.runLater(() -> callJsFunctionObj(callbackFunction, json));
+                if (json == null || json.isBlank()) {
+                    json = "{}";
+                }
+                final String payload = json;
+                Platform.runLater(() -> callJsFunctionObj(callbackFunction, payload));
             } catch (Exception e) {
                 e.printStackTrace();
                 String err = "{\"error\":\"" + escape(e.getMessage()) + "\"}";
@@ -724,6 +743,9 @@ public class JavaBridge {
 
     public void navigate(String page) {
         if (page == null || page.isBlank()) return;
+        if (!"settings.html".equals(page)) {
+            firstLoginSettingsFlow = false;
+        }
 
         // Si parece un documento, cargamos HTML completo (sirve para login -> index)
         if (page.endsWith(".html")) {
