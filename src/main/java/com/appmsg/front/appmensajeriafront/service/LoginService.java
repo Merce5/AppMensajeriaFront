@@ -76,4 +76,19 @@ public class LoginService {
         }
         return gson.fromJson(response.body(), ResponseBase.class);
     }
+
+    public ResponseBase resendVerificationCode(String email) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(ApiConfig.BASE_API_URL + BASE_PATH + "/register"))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString("{\"email\":\"" + email + "\"}"))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(
+                request,
+                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
+        );
+
+        return gson.fromJson(response.body(), ResponseBase.class);
+    }
 }

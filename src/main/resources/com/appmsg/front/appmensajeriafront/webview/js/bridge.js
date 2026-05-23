@@ -134,7 +134,12 @@ const Bridge = {
             javaBridge.verifyRegister(code);
         }
     },
-
+    resendVerificationCode(email) {
+        if (!this.isReady()) return;
+        if (typeof javaBridge.resendVerificationCode === "function") {
+            javaBridge.resendVerificationCode(email);
+        }
+    },
     navigate(page) {
         if (!this.isReady()) return;
 

@@ -240,6 +240,15 @@ public class JavaBridge {
         }
     }
 
+    public void resendVerificationCode(String email) throws IOException, InterruptedException {
+        var response = loginService.resendVerificationCode(email);
+        if (response.getError() != null) {
+            Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(response)));
+        } else {
+            Platform.runLater(() -> callJsFunction("onSuccessResendCode", gson.toJson(response)));
+        }
+    }
+
     // ===== Chat (WS) =====
 
     // ===== Chat Info / Update =====
