@@ -7,8 +7,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
-import java.util.HashMap;
-
 public class AppMensajeriaFront extends Application {
 
     @Override

@@ -1,6 +1,7 @@
 package com.appmsg.front.appmensajeriafront.webview;
+
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
-import com.appmsg.front.appmensajeriafront.model.*;
+import com.appmsg.front.appmensajeriafront.model.InviteResponse;
 import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
 import com.appmsg.front.appmensajeriafront.model.chat.ChatCreateResponse;
 import com.appmsg.front.appmensajeriafront.model.chat.ChatListItemDto;
@@ -18,6 +19,7 @@ import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
