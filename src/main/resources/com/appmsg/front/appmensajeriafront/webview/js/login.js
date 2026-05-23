@@ -12,6 +12,7 @@ const Login = {
     },
     register: function () {
         const button = document.querySelector(".btn-primary");
+        sessionStorage.setItem("registerEmail", document.getElementById("email-register").value);
         Bridge.setLoading(true, button);
         Bridge.register(
             document.getElementById("email-register").value,
@@ -21,9 +22,23 @@ const Login = {
     verifyRegister: function () {
         const button = document.querySelector(".btn-primary");
         Bridge.setLoading(true, button);
-        Bridge.verifyRegister(
-            document.getElementById("code").value
-        );
+        Bridge.verifyRegister(document.getElementById("code").value);
+    },
+    resendCode: function () {
+        const email = sessionStorage.getItem("registerEmail");
+        const button = document.querySelector(".btn-primary");
+        if (!email) {
+            Bridge.log("No se encontró el email");
+            return;
+        }
+        Bridge.setLoading(true, button);
+        Bridge.resendVerificationCode(email);
+    },
+    goRegister: function () {
+        Bridge.navigate("register.html");
+    },
+    goBack: function () {
+        Bridge.navigate("login.html");
     },
     validateForm: function () {
         const emailInput = document.getElementById("email-register");
@@ -86,11 +101,22 @@ window.onErrorLoginResult = function (result) {
             inputCode.style.color = "red";
             inputCode.style.borderColor = "red"
         }
-        document.getElementById("error-card").textContent =
-            typeof data.error === "string" ? data.error : "Error";
+        const card = document.getElementById("error-card")
+        card.textContent = typeof data.error === "string" ? data.error : "Error";
+        card.style.color = "red";
+        card.style.display = "block";
     } else {
         console.log(data);
     }
+};
+
+window.onSuccessResendCode = function(result) {
+    const response = typeof result === "string" ? JSON.parse(result) : result;
+    const card = document.getElementById("error-card");
+    card.style.color = "green";
+    card.style.display = "block";
+    card.innerText = response.message || "Código reenviado correctamente";
+    Bridge.setLoading(false, document.querySelector(".btn-primary"));
 };
 
 window.orSuccessResult = function (result) {

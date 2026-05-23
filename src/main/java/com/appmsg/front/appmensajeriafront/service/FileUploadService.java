@@ -1,5 +1,6 @@
 package com.appmsg.front.appmensajeriafront.service;
 
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.chat.UploadResponse;
 import com.google.gson.Gson;
 
@@ -8,7 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
-import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 /**
  * Servicio para subir archivos al backend.

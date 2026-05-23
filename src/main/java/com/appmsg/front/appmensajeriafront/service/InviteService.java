@@ -1,5 +1,6 @@
 package com.appmsg.front.appmensajeriafront.service;
 
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.InviteResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -10,7 +11,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 /**
  * Servicio para manejar invitaciones a chats.

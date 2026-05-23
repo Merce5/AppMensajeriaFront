@@ -1,6 +1,7 @@
 package com.appmsg.front.appmensajeriafront.webview;
+
 import com.appmsg.front.appmensajeriafront.config.ApiConfig;
-import com.appmsg.front.appmensajeriafront.model.*;
+import com.appmsg.front.appmensajeriafront.model.InviteResponse;
 import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
 import com.appmsg.front.appmensajeriafront.model.chat.ChatCreateResponse;
 import com.appmsg.front.appmensajeriafront.model.chat.ChatListItemDto;
@@ -18,6 +19,7 @@ import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -235,6 +237,15 @@ public class JavaBridge {
             Session.setUserId(response.getMessage());
             firstLoginSettingsFlow = true;
             navigate("settings.html");
+        }
+    }
+
+    public void resendVerificationCode(String email) throws IOException, InterruptedException {
+        var response = loginService.resendVerificationCode(email);
+        if (response.getError() != null) {
+            Platform.runLater(() -> callJsFunction("onErrorLoginResult", gson.toJson(response)));
+        } else {
+            Platform.runLater(() -> callJsFunction("onSuccessResendCode", gson.toJson(response)));
         }
     }
 

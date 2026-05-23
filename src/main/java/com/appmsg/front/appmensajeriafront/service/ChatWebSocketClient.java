@@ -1,16 +1,14 @@
 package com.appmsg.front.appmensajeriafront.service;
 
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
-import com.appmsg.front.appmensajeriafront.config.ApiConfig;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 /**
