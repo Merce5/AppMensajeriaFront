@@ -1,12 +1,12 @@
 package com.appmsg.front.appmensajeriafront.service;
 
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.user.UserSettingsDto;
 import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 public class SettingsService {
     private final Gson gson = new Gson();

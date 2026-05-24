@@ -105,12 +105,15 @@ html, body {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     padding: var(--spacing-lg);
+    position: relative;
+    padding-top: 60px;
 }
 
 .auth-card h2 {
     font-size: var(--font-size-xl);
     font-weight: 700;
     margin-bottom: 6px;
+    margin-top: 0;
 }
 
 .field {
@@ -187,5 +190,78 @@ html, body {
 
 .loading-cursor {
     cursor: wait !important;
+}
+
+.back-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    background: transparent;
+    color: #333;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    border-radius: 50%;
+
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    transform: translateX(-2px);
+}
+
+.back-btn svg {
+    width: 22px;
+    height: 22px;
+    transition: transform 0.2s ease;
+}
+
+.back-btn:hover svg {
+    transform: scale(1.05);
+}
+
+.verify-actions {
+    display: flex;
+    align-items: center;
+}
+
+.btn-refresh {
+    width: 42px;
+    height: 42px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: var(--surface-2, #f2f2f2);
+    color: var(--text, #333);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+    margin-left: 2px;
+}
+
+.btn-refresh:hover {
+    transform: rotate(20deg);
+    background: #e5e5e5;
+}
+
+.btn-refresh svg {
+    width: 18px;
+    height: 18px;
 }
 

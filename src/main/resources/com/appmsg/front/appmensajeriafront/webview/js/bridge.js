@@ -101,7 +101,13 @@ const Bridge = {
     resolveFileUrl(path) {
         if (!path) return "";
         // Ya es absoluta
-        if (path.startsWith("http://") || path.startsWith("https://")) return path;
+        if (
+            path.startsWith("http://") ||
+            path.startsWith("https://") ||
+            path.startsWith("data:") ||
+            path.startsWith("file:") ||
+            path.startsWith("blob:")
+        ) return path;
         // Relativa al backend
         var base = this.getBaseUrl();
         if (base && !path.startsWith("/")) path = "/" + path;
@@ -128,7 +134,12 @@ const Bridge = {
             javaBridge.verifyRegister(code);
         }
     },
-
+    resendVerificationCode(email) {
+        if (!this.isReady()) return;
+        if (typeof javaBridge.resendVerificationCode === "function") {
+            javaBridge.resendVerificationCode(email);
+        }
+    },
     navigate(page) {
         if (!this.isReady()) return;
 

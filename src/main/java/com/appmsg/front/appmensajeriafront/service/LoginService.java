@@ -1,5 +1,6 @@
 package com.appmsg.front.appmensajeriafront.service;
 
+import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 import com.appmsg.front.appmensajeriafront.model.ResponseBase;
 import com.appmsg.front.appmensajeriafront.model.auth.LoginRS;
 import com.appmsg.front.appmensajeriafront.model.user.UserDto;
@@ -13,8 +14,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-
-import com.appmsg.front.appmensajeriafront.config.ApiConfig;
 
 public class LoginService {
 
@@ -75,6 +74,21 @@ public class LoginService {
         if (response.statusCode() != 200) {
             throw new IOException("Failed : HTTP error code : " + response.statusCode());
         }
+        return gson.fromJson(response.body(), ResponseBase.class);
+    }
+
+    public ResponseBase resendVerificationCode(String email) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(ApiConfig.BASE_API_URL + BASE_PATH + "/register"))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString("{\"email\":\"" + email + "\"}"))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(
+                request,
+                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
+        );
+
         return gson.fromJson(response.body(), ResponseBase.class);
     }
 }

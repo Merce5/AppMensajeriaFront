@@ -1,3 +1,16 @@
+html,
+body {
+    min-height: 100%;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.page {
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-xl);
+}
+
 .settings-grid {
     gap: 32px;
     align-items: start;

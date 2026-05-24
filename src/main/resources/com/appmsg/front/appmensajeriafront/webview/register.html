@@ -9,28 +9,42 @@
 <body>
 <div class="auth-wrap">
     <div class="auth-card login-box">
+        <button class="back-btn" onclick="Login.goBack()" title="Volver">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
         <h2>Registro</h2>
         <p class="muted" style="margin: 0 0 12px 0;">Introduce un correo y una contraseña para continuar</p>
 
-        <div class="field">
-            <label for="email-register">Correo</label>
-            <input class="input" type="text" id="email-register" placeholder="Correo" autocomplete="email">
-            <small id="email-error" style="color: red; display: none;"></small>
-        </div>
+        <form onsubmit="Login.validateForm(); return false;">
+            <div class="field">
+                <label for="email-register">Correo</label>
+                <input class="input" type="text" id="email-register" placeholder="Correo" autocomplete="email">
+                <small id="email-error" style="color: red; display: none;"></small>
+            </div>
 
-        <div style="height: 12px;"></div>
+            <div style="height: 12px;"></div>
 
-        <div class="field">
-            <label for="password-register">Contraseña</label>
-            <input class="input" type="password" id="password-register" placeholder="Contraseña" autocomplete="current-password">
-        </div>
-        <div style="margin-top: 10px">
-            <p id="password-hint" class="muted" style="margin: 0 0 12px 0;">La contraseña debe tener mínimo 8 carácteres, minúsculas, mayúsculas, números y símbolos.</p>
-        </div>
-        <div class="auth-actions">
-            <div id="error-card"></div>
-            <button class="btn btn-primary" type="button" onclick="Login.validateForm()">Registrarse</button>
-        </div>
+            <div class="field">
+                <label for="password-register">Contraseña</label>
+                <input class="input" type="password" id="password-register" placeholder="Contraseña" autocomplete="new-password">
+            </div>
+
+            <div style="margin-top: 10px">
+                <p id="password-hint" class="muted" style="margin: 0 0 12px 0;">
+                    La contraseña debe tener mínimo 8 carácteres, minúsculas, mayúsculas, números y símbolos.
+                </p>
+            </div>
+
+            <div class="auth-actions">
+                <div id="error-card"></div>
+
+                <button class="btn btn-primary" type="submit">
+                    Registrarse
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
