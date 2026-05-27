@@ -388,6 +388,40 @@ const Bridge = {
         });
     },
 
+    deleteChat(chatId) {
+            return new Promise((resolve, reject) => {
+                if (!this.isReady()) {
+                    reject(new Error("Bridge not ready"));
+                    return;
+                }
+
+                const fn = javaBridge.deleteChat;
+                if (typeof fn !== "function") {
+                    reject(new Error("deleteChat not available"));
+                    return;
+                }
+
+                const callbackName = "_deleteChatCallback_" + Date.now();
+                window[callbackName] = function (responseJson) {
+                    delete window[callbackName];
+                    try {
+                        const response = JSON.parse(responseJson);
+                        if (response && response.success) resolve(response);
+                        else reject(new Error((response && (response.message || response.error)) || "Delete chat failed"));
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+
+                try {
+                    fn.call(javaBridge, chatId || "", callbackName);
+                } catch (e) {
+                    delete window[callbackName];
+                    reject(e);
+                }
+            });
+        },
+
     getChatInfo(chatId) {
         return new Promise((resolve, reject) => {
             if (!this.isReady()) { reject(new Error("Bridge not ready")); return; }

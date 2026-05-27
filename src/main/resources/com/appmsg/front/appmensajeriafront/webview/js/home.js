@@ -122,8 +122,8 @@ Bridge.whenReady(() => {
 
 // Recibe los ajustes y aplica el tema
 function onSettingsLoaded(dto) {
-    if (dto) {
-        Utils.applyTheme(dto);
+    if (dto && typeof dto.darkMode !== "undefined") {
+        Utils.applyTheme(!!dto.darkMode);
     }
 }
 window.onChatsReceived = function (result) {

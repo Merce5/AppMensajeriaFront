@@ -109,6 +109,47 @@ public class ChatService {
         }
     }
 
+    public ChatCreateResponse deleteChat(String chatId, String userId) throws Exception{
+        String urlStr = ApiConfig.BASE_API_URL + CHATS_PATH;
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setRequestProperty("Accept", "application/json");
+
+        // Crear body
+        com.google.gson.JsonObject body = new com.google.gson.JsonObject();
+        body.addProperty("action", "deleteChat");
+        body.addProperty("chatId", chatId);
+        body.addProperty("userId", userId);
+
+        // Enviar request
+        try (java.io.OutputStream os = conn.getOutputStream()) {
+            os.write(gson.toJson(body).getBytes("UTF-8"));
+        }
+
+        int responseCode = conn.getResponseCode();
+        String response = readResponse(
+                responseCode >= 200 && responseCode < 300
+                        ? conn.getInputStream()
+                        : conn.getErrorStream()
+        );
+
+        ChatCreateResponse chatResponse = gson.fromJson(response, ChatCreateResponse.class);
+
+        if (responseCode >= 200 && responseCode < 300) {
+            return chatResponse;
+        } else {
+            System.out.println(chatResponse);
+            if (chatResponse != null && chatResponse.message != null) {
+                throw new Exception(chatResponse.message);
+            }
+            throw new Exception("Error al borrar el chat");
+        }
+    }
+
     public List<ChatListItemDto> getChats(String userId) throws Exception {
         String urlStr = ApiConfig.BASE_API_URL + CHATS_PATH + "?userId=" + URLEncoder.encode(userId, "UTF-8");
         URL url = new URL(urlStr);

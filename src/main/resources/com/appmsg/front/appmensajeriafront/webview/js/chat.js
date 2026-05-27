@@ -386,6 +386,20 @@ let Chat = {
             });
     },
 
+    // ==================== BORRAR CHAT ====================
+    deleteChat: function() {
+            Bridge.deleteChat(this.chatId)
+                .then(result => {})
+                .catch(err => {
+                    Bridge.log('Error borrando chat: ' + err);
+                    alert('No se pudo borrar el chat: ' + err.message);
+                });
+        },
+
+    goBack: function () {
+            Bridge.navigate("main.html")
+            },
+
     // ==================== ENVIO DE MENSAJES ====================
 
     closeEmojiPickerFromOutside: function(event) {

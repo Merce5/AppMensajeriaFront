@@ -377,6 +377,42 @@ public class JavaBridge {
         });
     }
 
+    /**
+     * Crea un nuevo chat de grupo y genera un enlace de invitación.
+     * @param chatId Nombre del chat
+     */
+    public void deleteChat(String chatId, String callbackFunction) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                String userId = Session.getUserId();
+                if (userId == null || userId.isBlank()) {
+                    throw new Exception("No hay sesión de usuario");
+                }
+
+                // 1. Borrar el chat
+                ChatCreateResponse chatResponse = chatService.deleteChat(chatId, userId);
+                if (chatResponse == null || chatResponse.chatId == null) {
+                    System.out.println(chatResponse);
+                    throw new Exception("Error al borrar el chat");
+                }
+
+                // 3. Combinar respuesta
+                JsonObject result = new JsonObject();
+                result.addProperty("success", true);
+                result.addProperty("chatId", chatResponse.chatId);
+
+                String json = gson.toJson(result);
+                Platform.runLater(() -> callJsFunction(callbackFunction, json));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                String errorJson = "{\"success\":false,\"message\":\"" + escape(e.getMessage()) + "\"}";
+                Platform.runLater(() -> callJsFunction(callbackFunction, errorJson));
+            }
+        });
+    }
+
+
     public void getChats() {
         CompletableFuture.runAsync(() -> {
             try {
