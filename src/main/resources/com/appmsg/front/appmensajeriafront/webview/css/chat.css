@@ -64,11 +64,15 @@
 }
 
 .message {
-    max-width: 70%;
+    max-width: 75%;
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-lg);
     position: relative;
     word-wrap: break-word;
+}
+
+.message:has(.message-media) {
+    max-width: 85%;
 }
 
 .message-own {
@@ -114,17 +118,23 @@
 /* ==================== MULTIMEDIA EN MENSAJES ==================== */
 
 .message-media {
-    margin-bottom: var(--spacing-sm);
+    margin: calc(-1 * var(--spacing-sm)) calc(-1 * var(--spacing-md)) var(--spacing-sm);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: 2px;
+    border-radius: inherit;
+    overflow: hidden;
 }
 
 .media-image {
-    max-width: 100%;
-    max-height: 300px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 420px;
+    min-width: 180px;
+    object-fit: contain;
     border-radius: var(--radius-sm);
     cursor: pointer;
+    display: block;
     transition: transform var(--transition-fast);
 }
 
@@ -133,9 +143,12 @@
 }
 
 .media-video {
-    max-width: 100%;
-    max-height: 300px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 420px;
+    min-width: 180px;
     border-radius: var(--radius-sm);
+    display: block;
 }
 
 .media-file {
