@@ -1,5 +1,5 @@
 package com.appmsg.front.appmensajeriafront.config;
 
 public class ApiConfig {
-    public static final String BASE_API_URL = "http://localhost:8080/APPMensajeriaUEM_war_exploded";
+    public static final String BASE_API_URL = "https://appmensajeriauem-lsp8.onrender.com";
 }
